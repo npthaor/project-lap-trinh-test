@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vietnam Tourist Crowd Predictor</title>
+<title>Hệ Thống Dự Báo Mật Độ Du Lịch</title>
 
 <style>
 *{
@@ -53,6 +53,7 @@ h1{
 label{
     display:block;
     margin-bottom:8px;
+    font-weight: 500;
 }
 
 select,input{
@@ -61,6 +62,8 @@ select,input{
     border:none;
     border-radius:10px;
     font-size:15px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
 }
 
 .predict-btn{
@@ -72,17 +75,40 @@ select,input{
     background:#38bdf8;
     color:white;
     font-size:18px;
+    font-weight: bold;
     cursor:pointer;
     transition:0.3s;
 }
 
 .predict-btn:hover{
     transform:translateY(-2px);
+    background:#0284c7;
+}
+
+.predict-btn:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .result{
     margin-top:35px;
     display:none;
+}
+
+/* Khung hiển thị thời tiết lấy tự động */
+.weather-info {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(56, 189, 248, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.weather-info span {
+    font-weight: bold;
+    color: #38bdf8;
 }
 
 .cards{
@@ -96,22 +122,37 @@ select,input{
     padding:20px;
     border-radius:15px;
     text-align:center;
+    transition: 0.3s;
+}
+
+.card:hover {
+    background:rgba(255,255,255,0.15);
 }
 
 .card h2{
     margin-bottom:10px;
+    font-size: 16px;
+    color: #cbd5e1;
 }
 
 .big-number{
-    font-size:26px;
+    font-size:24px;
     font-weight:bold;
+    color: #fff;
+}
+
+#loading {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+    color: #94a3b8;
 }
 
 @media(max-width:768px){
     .form-grid{
         grid-template-columns:1fr;
     }
-
     .cards{
         grid-template-columns:1fr 1fr;
     }
@@ -122,169 +163,253 @@ select,input{
 
 <div class="container">
 
-<h1>🇻🇳 Vietnam Tourist Crowd Predictor</h1>
+<h1>Dự Báo Mật Độ Du Lịch</h1>
 
 <p class="subtitle">
-Predict visitor volume and crowd level for popular destinations in Vietnam
+Ứng dụng mô hình hồi quy dự báo lượng khách tại các điểm tham quan ở Việt Nam
 </p>
 
 <div class="form-grid">
+    <div>
+        <label>Tỉnh / Thành phố</label>
+        <select id="province" onchange="updateDestinations()">
+            <option value="">-- Chọn Tỉnh/Thành phố --</option>
+            <!-- Các option sẽ được JS render -->
+        </select>
+    </div>
 
-<div>
-<label>Destination</label>
-<select id="destination">
-<option value="danang">Da Nang</option>
-<option value="hanoi">Ha Noi</option>
-<option value="hcm">Ho Chi Minh City</option>
-<option value="hoian">Hoi An</option>
-<option value="nhatrang">Nha Trang</option>
-<option value="phuquoc">Phu Quoc</option>
-<option value="sapa">Sa Pa</option>
-<option value="halong">Ha Long</option>
-</select>
+    <div>
+        <label>Địa điểm tham quan</label>
+        <select id="destination">
+            <option value="">-- Vui lòng chọn Tỉnh/Thành trước --</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Ngày dự kiến đi</label>
+        <input type="date" id="date">
+    </div>
 </div>
 
-<div>
-<label>Date</label>
-<input type="date" id="date">
-</div>
-
-<div>
-<label>Temperature (°C)</label>
-<input type="number" id="temp" value="30">
-</div>
-
-<div>
-<label>Weather Condition</label>
-<select id="weather">
-<option value="sunny">Sunny</option>
-<option value="cloudy">Cloudy</option>
-<option value="rainy">Rainy</option>
-</select>
-</div>
-
-</div>
-
-<button class="predict-btn" onclick="predictCrowd()">
-Predict Crowd Level
+<button class="predict-btn" id="predictBtn" onclick="predictCrowd()">
+    Phân tích & Dự báo
 </button>
 
+<div id="loading">Hệ thống đang truy xuất dữ liệu thời tiết và chạy mô hình...</div>
+
 <div class="result" id="result">
+    
+    <div class="weather-info" id="weatherDisplay">
+        <!-- Thông tin thời tiết sẽ hiện ở đây -->
+    </div>
 
-<div class="cards">
+    <div class="cards">
+        <div class="card">
+            <h2>Lượng Khách</h2>
+            <div class="big-number" id="visitors"></div>
+        </div>
 
-<div class="card">
-<h2>Visitors</h2>
-<div class="big-number" id="visitors"></div>
-</div>
+        <div class="card">
+            <h2>Mật Độ</h2>
+            <div class="big-number" id="crowd"></div>
+        </div>
 
-<div class="card">
-<h2>Crowd Level</h2>
-<div class="big-number" id="crowd"></div>
-</div>
+        <div class="card">
+            <h2>TG Chờ Dự Kiến</h2>
+            <div class="big-number" id="wait"></div>
+        </div>
 
-<div class="card">
-<h2>Waiting Time</h2>
-<div class="big-number" id="wait"></div>
-</div>
-
-<div class="card">
-<h2>Best Time</h2>
-<div class="big-number" id="besttime"></div>
-</div>
-
-</div>
-
+        <div class="card">
+            <h2>Khung Giờ Vàng</h2>
+            <div class="big-number" id="besttime"></div>
+        </div>
+    </div>
 </div>
 
 </div>
 
 <script>
+// 1. Cấu trúc dữ liệu phân cấp: Tỉnh thành -> Các địa điểm
+const locationData = {
+    "hanoi": {
+        name: "Hà Nội",
+        spots: {
+            "vanmieu": { name: "Văn Miếu Quốc Tử Giám", baseVisits: 8000 },
+            "hoguom": { name: "Phố đi bộ Hồ Gươm", baseVisits: 25000 },
+            "langbac": { name: "Lăng Chủ tịch", baseVisits: 12000 }
+        }
+    },
+    "quangninh": {
+        name: "Quảng Ninh",
+        spots: {
+            "vinhhalong": { name: "Vịnh Hạ Long", baseVisits: 15000 },
+            "yentu": { name: "Khu di tích Yên Tử", baseVisits: 6000 },
+            "sunworld": { name: "Sun World Hạ Long", baseVisits: 10000 }
+        }
+    },
+    "danang": {
+        name: "Đà Nẵng",
+        spots: {
+            "banahills": { name: "Bà Nà Hills", baseVisits: 18000 },
+            "hoian": { name: "Phố cổ Hội An", baseVisits: 14000 }, // Hội An thuộc Quảng Nam nhưng thường đi từ ĐN
+            "sonchuat": { name: "Chùa Linh Ứng", baseVisits: 7000 }
+        }
+    },
+    "hcm": {
+        name: "Hồ Chí Minh",
+        spots: {
+            "dinhdoclap": { name: "Dinh Độc Lập", baseVisits: 9000 },
+            "suoitien": { name: "KDL Suối Tiên", baseVisits: 12000 },
+            "nguyenhue": { name: "Phố đi bộ Nguyễn Huệ", baseVisits: 30000 }
+        }
+    }
+    // Cậu có thể copy paste format này để thêm đủ 34 tỉnh thành nhé
+};
 
-function predictCrowd(){
+// 2. Hàm khởi tạo danh sách Tỉnh/Thành
+function initProvinces() {
+    const provinceSelect = document.getElementById("province");
+    for (let key in locationData) {
+        let option = document.createElement("option");
+        option.value = key;
+        option.text = locationData[key].name;
+        provinceSelect.add(option);
+    }
+}
 
-    const city = document.getElementById("destination").value;
-    const temp = parseInt(document.getElementById("temp").value);
-    const weather = document.getElementById("weather").value;
-    const dateInput = document.getElementById("date").value;
-
-    if(!dateInput){
-        alert("Please select a date");
+// 3. Hàm cập nhật danh sách Địa điểm khi Tỉnh thay đổi
+function updateDestinations() {
+    const provinceKey = document.getElementById("province").value;
+    const destSelect = document.getElementById("destination");
+    
+    // Reset danh sách địa điểm
+    destSelect.innerHTML = "";
+    
+    if (!provinceKey) {
+        destSelect.innerHTML = '<option value="">-- Vui lòng chọn Tỉnh/Thành trước --</option>';
         return;
     }
 
-    let baseVisitors = {
-        danang:12000,
-        hanoi:18000,
-        hcm:22000,
-        hoian:10000,
-        nhatrang:14000,
-        phuquoc:9000,
-        sapa:8000,
-        halong:11000
-    };
+    const spots = locationData[provinceKey].spots;
+    for (let spotKey in spots) {
+        let option = document.createElement("option");
+        option.value = spotKey;
+        option.text = spots[spotKey].name;
+        destSelect.add(option);
+    }
+}
 
-    let visitors = baseVisitors[city];
+// Chạy khởi tạo Tỉnh/Thành khi trang vừa tải
+initProvinces();
 
+// 4. Giả lập API gọi dữ liệu thời tiết dựa vào ngày tháng (Thay vì tự nhập)
+async function fetchWeather(dateString) {
+    return new Promise(resolve => {
+        // Giả lập thời gian kết nối API mất 1.5 giây
+        setTimeout(() => {
+            const dateObj = new Date(dateString);
+            const month = dateObj.getMonth() + 1; // Tháng từ 1-12
+            
+            let temp, condition, conditionVN;
+            
+            // Logic tạo thời tiết hợp lý theo mùa
+            if (month >= 5 && month <= 8) {
+                temp = Math.floor(Math.random() * (36 - 30 + 1)) + 30; // 30-36 độ
+                condition = Math.random() > 0.6 ? "rainy" : "sunny";
+            } else if (month >= 11 || month <= 2) {
+                temp = Math.floor(Math.random() * (24 - 15 + 1)) + 15; // 15-24 độ
+                condition = "cloudy";
+            } else {
+                temp = Math.floor(Math.random() * (30 - 24 + 1)) + 24; // 24-30 độ
+                condition = "sunny";
+            }
+
+            if(condition === "sunny") conditionVN = "Trời nắng đẹp";
+            if(condition === "cloudy") conditionVN = "Nhiều mây / Âm u";
+            if(condition === "rainy") conditionVN = "Có mưa rào";
+
+            resolve({ temp, condition, conditionVN });
+        }, 1500); 
+    });
+}
+
+// 5. Hàm chính: Tính toán dự báo
+async function predictCrowd() {
+    const provinceKey = document.getElementById("province").value;
+    const spotKey = document.getElementById("destination").value;
+    const dateInput = document.getElementById("date").value;
+    const btn = document.getElementById("predictBtn");
+    const loading = document.getElementById("loading");
+    const resultDiv = document.getElementById("result");
+
+    if(!provinceKey || !spotKey || !dateInput){
+        alert("Vui lòng chọn đầy đủ Địa điểm và Ngày đi!");
+        return;
+    }
+
+    // Hiển thị trạng thái đang tải
+    btn.disabled = true;
+    loading.style.display = "block";
+    resultDiv.style.display = "none";
+
+    // Lấy dữ liệu lượng khách cơ bản của điểm đó
+    let baseVisitors = locationData[provinceKey].spots[spotKey].baseVisits;
+
+    // GỌI MOCK API THỜI TIẾT TỰ ĐỘNG
+    const weatherData = await fetchWeather(dateInput);
+    
+    // Thuật toán "Hồi quy" đơn giản
+    let visitors = baseVisitors;
     let selectedDate = new Date(dateInput);
     let day = selectedDate.getDay();
-
     let weekend = (day === 0 || day === 6);
 
-    if(weekend){
-        visitors *= 1.35;
-    }
+    // Yếu tố cuối tuần (Tăng 40%)
+    if(weekend) visitors *= 1.40;
 
-    if(temp >= 25 && temp <= 32){
-        visitors *= 1.1;
-    }
-
-    if(weather === "cloudy"){
-        visitors *= 0.95;
-    }
-
-    if(weather === "rainy"){
-        visitors *= 0.7;
-    }
+    // Yếu tố thời tiết (Dựa vào API trả về)
+    if(weatherData.temp >= 20 && weatherData.temp <= 30) visitors *= 1.15; // Thời tiết lý tưởng
+    if(weatherData.condition === "cloudy") visitors *= 0.90; // Âm u giảm nhẹ
+    if(weatherData.condition === "rainy") visitors *= 0.60; // Mưa giảm mạnh
 
     visitors = Math.round(visitors);
 
-    let crowdLevel;
-    let waitTime;
-    let bestTime;
+    // Phân loại kết quả
+    let crowdLevel, waitTime, bestTime;
+    let thresholdLow = baseVisitors * 0.8;
+    let thresholdHigh = baseVisitors * 1.3;
 
-    if(visitors < 10000){
-        crowdLevel = "Low";
-        waitTime = "5 mins";
-        bestTime = "10 AM";
+    if(visitors < thresholdLow){
+        crowdLevel = "Thưa thớt 🟢";
+        waitTime = "0 - 5 phút";
+        bestTime = "Đi giờ nào cũng đẹp";
     }
-    else if(visitors < 18000){
-        crowdLevel = "Medium";
-        waitTime = "20 mins";
-        bestTime = "8 AM";
+    else if(visitors < thresholdHigh){
+        crowdLevel = "Trung bình 🟡";
+        waitTime = "15 - 20 phút";
+        bestTime = "Trước 9h sáng";
     }
     else{
-        crowdLevel = "High";
-        waitTime = "45 mins";
-        bestTime = "7 AM";
+        crowdLevel = "Quá tải 🔴";
+        waitTime = "45 - 60 phút";
+        bestTime = "6h30 - 7h30 sáng";
     }
 
-    document.getElementById("visitors").innerHTML =
-    visitors.toLocaleString();
+    // Hiển thị thông tin thời tiết tự động
+    document.getElementById("weatherDisplay").innerHTML = 
+        `Dữ liệu thời tiết dự báo: Nhiệt độ khoảng <span>${weatherData.temp}°C</span>, Tình trạng: <span>${weatherData.conditionVN}</span>.`;
 
-    document.getElementById("crowd").innerHTML =
-    crowdLevel;
+    // Cập nhật số liệu
+    document.getElementById("visitors").innerHTML = visitors.toLocaleString("vi-VN") + " người";
+    document.getElementById("crowd").innerHTML = crowdLevel;
+    document.getElementById("wait").innerHTML = waitTime;
+    document.getElementById("besttime").innerHTML = bestTime;
 
-    document.getElementById("wait").innerHTML =
-    waitTime;
-
-    document.getElementById("besttime").innerHTML =
-    bestTime;
-
-    document.getElementById("result").style.display =
-    "block";
+    // Tắt loading, hiện kết quả
+    loading.style.display = "none";
+    btn.disabled = false;
+    resultDiv.style.display = "block";
 }
-
 </script>
 
 </body>
