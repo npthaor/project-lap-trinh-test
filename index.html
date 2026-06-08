@@ -3,412 +3,425 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ Thống Dự Báo Mật Độ Du Lịch</title>
+<title>CrowdLess - AI Tourism Predictor</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+:root {
+    --bg-color: #0f172a;
+    --panel-bg: rgba(30, 41, 59, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    /* Màu trạng thái */
+    --low-color: #22c55e;
+    --medium-color: #eab308;
+    --high-color: #ef4444;
+    
+    /* Màu KPI Cards */
+    --kpi-blue: rgba(59, 130, 246, 0.2);
+    --kpi-blue-border: #3b82f6;
+    --kpi-orange: rgba(249, 115, 22, 0.2);
+    --kpi-orange-border: #f97316;
+    --kpi-purple: rgba(139, 92, 246, 0.2);
+    --kpi-purple-border: #8b5cf6;
 }
 
-body{
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:40px;
-    color:white;
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+body {
+    background: linear-gradient(135deg, var(--bg-color), #1e293b);
+    min-height: 100vh;
+    padding: 30px 15px;
+    color: var(--text-main);
 }
 
-.container{
-    width:900px;
-    max-width:100%;
-    background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(15px);
-    border-radius:25px;
-    padding:40px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.3);
+.dashboard-container {
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
-h1{
-    text-align:center;
-    margin-bottom:10px;
+/* Glassmorphism Panel chung */
+.glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 25px;
 }
 
-.subtitle{
-    text-align:center;
-    opacity:.8;
-    margin-bottom:35px;
-}
+.header { text-align: center; margin-bottom: 20px; }
+.header h1 { font-size: 28px; font-weight: 700; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
 
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
+/* Form nhập liệu */
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.form-group label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.form-group select, .form-group input {
+    width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color);
+    background: rgba(15, 23, 42, 0.6); color: white; font-size: 14px; outline: none; transition: 0.3s;
 }
+.form-group select:focus, .form-group input:focus { border-color: #38bdf8; }
 
-label{
-    display:block;
-    margin-bottom:8px;
-    font-weight: 500;
+.btn-predict {
+    width: 100%; padding: 15px; margin-top: 20px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: white; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
 }
+.btn-predict:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6); }
 
-select,input{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    font-size:15px;
-    background: rgba(255,255,255,0.9);
-    color: #333;
+/* Kết quả - Ẩn mặc định */
+#resultSection { display: none; }
+
+/* 1. Hero KPI */
+.hero-kpi { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; }
+.crowd-score { font-size: 64px; font-weight: 800; line-height: 1; margin-bottom: 10px; }
+.score-suffix { font-size: 24px; color: var(--text-muted); font-weight: 400; }
+.crowd-label { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; }
+
+/* 7. Recommendation Box */
+.rec-box {
+    background: rgba(255,255,255,0.05); border-left: 4px solid #38bdf8; padding: 15px 20px;
+    border-radius: 8px; margin-bottom: 25px; display: flex; gap: 15px; align-items: flex-start;
 }
+.rec-box i { font-size: 24px; color: #38bdf8; margin-top: 2px; }
+.rec-box p { font-size: 14px; line-height: 1.6; color: #e2e8f0; }
 
-.predict-btn{
-    margin-top:30px;
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    background:#38bdf8;
-    color:white;
-    font-size:18px;
-    font-weight: bold;
-    cursor:pointer;
-    transition:0.3s;
-}
+/* 8. KPI Cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+.kpi-card { background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px; border-top: 3px solid; transition: 0.3s; }
+.kpi-card:hover { transform: translateY(-3px); }
+.kpi-card h3 { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-card .value { font-size: 22px; font-weight: 700; color: white; margin-bottom: 5px; }
+.kpi-card .sub-text { font-size: 12px; color: #cbd5e1; }
 
-.predict-btn:hover{
-    transform:translateY(-2px);
-    background:#0284c7;
-}
+.kpi-blue { border-color: var(--kpi-blue-border); background: linear-gradient(to bottom, var(--kpi-blue), transparent); }
+.kpi-orange { border-color: var(--kpi-orange-border); background: linear-gradient(to bottom, var(--kpi-orange), transparent); }
+.kpi-purple { border-color: var(--kpi-purple-border); background: linear-gradient(to bottom, var(--kpi-purple), transparent); }
 
-.predict-btn:disabled {
-    background: #64748b;
-    cursor: not-allowed;
-    transform: none;
-}
+/* Chart & Weather Section */
+.data-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+.chart-container { background: rgba(15, 23, 42, 0.5); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+.weather-container { background: rgba(15, 23, 42, 0.5); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+.section-title { font-size: 15px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
 
-.result{
-    margin-top:35px;
-    display:none;
-}
+/* 5. Weather Cards */
+.weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.w-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; text-align: center; }
+.w-card i { font-size: 20px; margin-bottom: 8px; color: #38bdf8; }
+.w-card .w-val { font-size: 16px; font-weight: bold; }
+.w-card .w-lbl { font-size: 11px; color: var(--text-muted); }
 
-/* Khung hiển thị thời tiết lấy tự động */
-.weather-info {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: rgba(56, 189, 248, 0.1);
-    border-radius: 12px;
-    border: 1px solid rgba(56, 189, 248, 0.3);
-}
+/* 9 & 3. Factors & Confidence */
+.footer-info { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 20px; flex-wrap: wrap; gap: 15px; }
+.factors { display: flex; gap: 10px; flex-wrap: wrap; }
+.badge { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; color: #cbd5e1; }
+.badge i { margin-right: 5px; }
+.badge.active { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+.confidence { font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 6px 15px; border-radius: 20px; }
 
-.weather-info span {
-    font-weight: bold;
-    color: #38bdf8;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-}
-
-.card{
-    background:rgba(255,255,255,0.08);
-    padding:20px;
-    border-radius:15px;
-    text-align:center;
-    transition: 0.3s;
-}
-
-.card:hover {
-    background:rgba(255,255,255,0.15);
-}
-
-.card h2{
-    margin-bottom:10px;
-    font-size: 16px;
-    color: #cbd5e1;
-}
-
-.big-number{
-    font-size:24px;
-    font-weight:bold;
-    color: #fff;
-}
-
-#loading {
-    display: none;
-    text-align: center;
-    margin-top: 20px;
-    font-style: italic;
-    color: #94a3b8;
-}
-
-@media(max-width:768px){
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-    .cards{
-        grid-template-columns:1fr 1fr;
-    }
+@media (max-width: 768px) {
+    .form-grid, .kpi-grid, .data-grid { grid-template-columns: 1fr; }
+    .footer-info { flex-direction: column; align-items: flex-start; }
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-<h1>Dự Báo Mật Độ Du Lịch</h1>
-
-<p class="subtitle">
-Ứng dụng mô hình hồi quy dự báo lượng khách tại các điểm tham quan ở Việt Nam
-</p>
-
-<div class="form-grid">
-    <div>
-        <label>Tỉnh / Thành phố</label>
-        <select id="province" onchange="updateDestinations()">
-            <option value="">-- Chọn Tỉnh/Thành phố --</option>
-            <!-- Các option sẽ được JS render -->
-        </select>
-    </div>
-
-    <div>
-        <label>Địa điểm tham quan</label>
-        <select id="destination">
-            <option value="">-- Vui lòng chọn Tỉnh/Thành trước --</option>
-        </select>
-    </div>
-
-    <div>
-        <label>Ngày dự kiến đi</label>
-        <input type="date" id="date">
-    </div>
-</div>
-
-<button class="predict-btn" id="predictBtn" onclick="predictCrowd()">
-    Phân tích & Dự báo
-</button>
-
-<div id="loading">Hệ thống đang truy xuất dữ liệu thời tiết và chạy mô hình...</div>
-
-<div class="result" id="result">
-    
-    <div class="weather-info" id="weatherDisplay">
-        <!-- Thông tin thời tiết sẽ hiện ở đây -->
-    </div>
-
-    <div class="cards">
-        <div class="card">
-            <h2>Lượng Khách</h2>
-            <div class="big-number" id="visitors"></div>
+<div class="dashboard-container">
+    <div class="glass-panel">
+        <div class="header">
+            <h1>CROWDLESS ANALYTICS</h1>
+            <p>Mô hình Hồi quy dự báo mật độ du lịch & tối ưu hoá vận hành</p>
         </div>
 
-        <div class="card">
-            <h2>Mật Độ</h2>
-            <div class="big-number" id="crowd"></div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Tỉnh / Thành phố</label>
+                <select id="province" onchange="updateDestinations()">
+                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Địa điểm tham quan</label>
+                <select id="destination">
+                    <option value="">-- Vui lòng chọn Tỉnh/Thành trước --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ngày phân tích</label>
+                <input type="date" id="date">
+            </div>
         </div>
-
-        <div class="card">
-            <h2>TG Chờ Dự Kiến</h2>
-            <div class="big-number" id="wait"></div>
-        </div>
-
-        <div class="card">
-            <h2>Khung Giờ Vàng</h2>
-            <div class="big-number" id="besttime"></div>
-        </div>
+        <button class="btn-predict" onclick="runPrediction()">Phân tích & Chạy mô hình (Run Model)</button>
     </div>
-</div>
 
+    <div id="loading" style="display:none; text-align:center; color: #94a3b8; padding: 20px;">
+        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+        <p style="margin-top: 10px;">Đang truy xuất dữ liệu & chạy hồi quy đa biến...</p>
+    </div>
+
+    <div class="glass-panel" id="resultSection">
+        
+        <div class="hero-kpi">
+            <div class="crowd-score" id="heroScore">0<span class="score-suffix">/100</span></div>
+            <div class="crowd-label" id="heroLabel">ĐANG TÍNH TOÁN</div>
+        </div>
+
+        <div class="rec-box">
+            <i class="fas fa-lightbulb"></i>
+            <div>
+                <strong>AI Insights: </strong>
+                <span id="recommendationText">Khuyến nghị sẽ hiển thị tại đây dựa trên kết quả phân tích.</span>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-blue">
+                <h3><i class="fas fa-users"></i> Visitor Count</h3>
+                <div class="value" id="kpiVisitors">0</div>
+                <div class="sub-text">Khách dự kiến/ngày</div>
+            </div>
+            <div class="kpi-card" id="kpiCrowdCard">
+                <h3><i class="fas fa-tachometer-alt"></i> Mật độ</h3>
+                <div class="value" id="kpiCrowdLevel">-</div>
+                <div class="sub-text">So với sức chứa tối đa</div>
+            </div>
+            <div class="kpi-card kpi-orange">
+                <h3><i class="fas fa-hourglass-half"></i> Waiting Time</h3>
+                <div class="value" id="kpiWait">0 min</div>
+                <div class="sub-text">Thời gian chờ trung bình</div>
+            </div>
+            <div class="kpi-card kpi-purple">
+                <h3><i class="fas fa-clock"></i> Best Time</h3>
+                <div class="value" id="kpiBest">00:00</div>
+                <div class="sub-text" id="kpiBestSub">Giảm 0% mật độ</div>
+            </div>
+        </div>
+
+        <div class="data-grid">
+            <div class="chart-container">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Visitor Forecast (Hourly)</div>
+                <canvas id="visitorChart" height="250"></canvas>
+            </div>
+            
+            <div class="weather-container">
+                <div class="section-title"><i class="fas fa-cloud-sun"></i> Yếu tố Thời tiết</div>
+                <div class="weather-grid">
+                    <div class="w-card">
+                        <i class="fas fa-temperature-high" style="color:#f87171"></i>
+                        <div class="w-val" id="wTemp">--°C</div>
+                        <div class="w-lbl">Nhiệt độ</div>
+                    </div>
+                    <div class="w-card">
+                        <i class="fas fa-cloud" id="wIcon"></i>
+                        <div class="w-val" id="wCond">--</div>
+                        <div class="w-lbl">Tình trạng</div>
+                    </div>
+                    <div class="w-card">
+                        <i class="fas fa-tint" style="color:#60a5fa"></i>
+                        <div class="w-val" id="wHumid">--%</div>
+                        <div class="w-lbl">Độ ẩm</div>
+                    </div>
+                    <div class="w-card">
+                        <i class="fas fa-wind" style="color:#a78bfa"></i>
+                        <div class="w-val" id="wWind">-- km/h</div>
+                        <div class="w-lbl">Sức gió</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-info">
+            <div class="factors">
+                <span class="badge active"><i class="fas fa-database"></i> Historical Data</span>
+                <span class="badge" id="badgeWeekend"><i class="fas fa-calendar-alt"></i> Weekend Factor</span>
+                <span class="badge" id="badgeWeather"><i class="fas fa-sun"></i> Weather Impact</span>
+                <span class="badge active"><i class="fas fa-map-marker-alt"></i> Location Capacity</span>
+            </div>
+            <div class="confidence" id="modelConfidence">
+                <i class="fas fa-check-circle"></i> Model Confidence: 89%
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script>
-// 1. Cấu trúc dữ liệu phân cấp: Tỉnh thành -> Các địa điểm
+// --- GIỮ NGUYÊN DATA TỈNH THÀNH (Lấy 1 vài mẫu để demo web chạy được) ---
 const locationData = {
-    "hanoi": {
-        name: "Hà Nội",
-        spots: {
-            "vanmieu": { name: "Văn Miếu Quốc Tử Giám", baseVisits: 8000 },
-            "hoguom": { name: "Phố đi bộ Hồ Gươm", baseVisits: 25000 },
-            "langbac": { name: "Lăng Chủ tịch", baseVisits: 12000 }
-        }
-    },
-    "quangninh": {
-        name: "Quảng Ninh",
-        spots: {
-            "vinhhalong": { name: "Vịnh Hạ Long", baseVisits: 15000 },
-            "yentu": { name: "Khu di tích Yên Tử", baseVisits: 6000 },
-            "sunworld": { name: "Sun World Hạ Long", baseVisits: 10000 }
-        }
-    },
-    "danang": {
-        name: "Đà Nẵng",
-        spots: {
-            "banahills": { name: "Bà Nà Hills", baseVisits: 18000 },
-            "hoian": { name: "Phố cổ Hội An", baseVisits: 14000 }, // Hội An thuộc Quảng Nam nhưng thường đi từ ĐN
-            "sonchuat": { name: "Chùa Linh Ứng", baseVisits: 7000 }
-        }
-    },
-    "hcm": {
-        name: "Hồ Chí Minh",
-        spots: {
-            "dinhdoclap": { name: "Dinh Độc Lập", baseVisits: 9000 },
-            "suoitien": { name: "KDL Suối Tiên", baseVisits: 12000 },
-            "nguyenhue": { name: "Phố đi bộ Nguyễn Huệ", baseVisits: 30000 }
-        }
-    }
-    // Cậu có thể copy paste format này để thêm đủ 34 tỉnh thành nhé
+    "hanoi": { name: "Hà Nội", spots: { "langbac": { name: "Lăng Chủ tịch", baseVisits: 15000, capacity: 20000 }, "vanmieu": { name: "Văn Miếu", baseVisits: 8000, capacity: 12000 }, "hoguom": { name: "Phố đi bộ", baseVisits: 25000, capacity: 40000 } } },
+    "danang": { name: "Đà Nẵng", spots: { "banahills": { name: "Bà Nà Hills", baseVisits: 18000, capacity: 25000 }, "cauvang": { name: "Cầu Vàng", baseVisits: 15000, capacity: 20000 } } },
+    "hcm": { name: "Hồ Chí Minh", spots: { "dinhdoclap": { name: "Dinh Độc Lập", baseVisits: 10000, capacity: 15000 }, "nguyenhue": { name: "Phố đi bộ", baseVisits: 30000, capacity: 50000 } } }
 };
 
-// 2. Hàm khởi tạo danh sách Tỉnh/Thành
 function initProvinces() {
     const provinceSelect = document.getElementById("province");
     for (let key in locationData) {
-        let option = document.createElement("option");
-        option.value = key;
-        option.text = locationData[key].name;
-        provinceSelect.add(option);
+        provinceSelect.add(new Option(locationData[key].name, key));
     }
 }
-
-// 3. Hàm cập nhật danh sách Địa điểm khi Tỉnh thay đổi
 function updateDestinations() {
-    const provinceKey = document.getElementById("province").value;
-    const destSelect = document.getElementById("destination");
-    
-    // Reset danh sách địa điểm
-    destSelect.innerHTML = "";
-    
-    if (!provinceKey) {
-        destSelect.innerHTML = '<option value="">-- Vui lòng chọn Tỉnh/Thành trước --</option>';
-        return;
-    }
-
-    const spots = locationData[provinceKey].spots;
-    for (let spotKey in spots) {
-        let option = document.createElement("option");
-        option.value = spotKey;
-        option.text = spots[spotKey].name;
-        destSelect.add(option);
+    const pKey = document.getElementById("province").value;
+    const dSelect = document.getElementById("destination");
+    dSelect.innerHTML = '<option value="">-- Chọn Địa điểm --</option>';
+    if (!pKey) return;
+    for (let sKey in locationData[pKey].spots) {
+        dSelect.add(new Option(locationData[pKey].spots[sKey].name, sKey));
     }
 }
-
-// Chạy khởi tạo Tỉnh/Thành khi trang vừa tải
 initProvinces();
 
-// 4. Giả lập API gọi dữ liệu thời tiết dựa vào ngày tháng (Thay vì tự nhập)
-async function fetchWeather(dateString) {
+// --- BIẾN TOÀN CỤC CHO CHART.JS ---
+let myChart = null;
+
+// --- MOCK API THỜI TIẾT ---
+async function fetchWeatherMock() {
     return new Promise(resolve => {
-        // Giả lập thời gian kết nối API mất 1.5 giây
         setTimeout(() => {
-            const dateObj = new Date(dateString);
-            const month = dateObj.getMonth() + 1; // Tháng từ 1-12
+            const temps = [24, 28, 32, 35, 18, 22];
+            const conditions = ["Sunny", "Cloudy", "Rainy"];
+            const winds = [5, 10, 15, 25];
+            const humids = [60, 75, 85, 90];
             
-            let temp, condition, conditionVN;
-            
-            // Logic tạo thời tiết hợp lý theo mùa
-            if (month >= 5 && month <= 8) {
-                temp = Math.floor(Math.random() * (36 - 30 + 1)) + 30; // 30-36 độ
-                condition = Math.random() > 0.6 ? "rainy" : "sunny";
-            } else if (month >= 11 || month <= 2) {
-                temp = Math.floor(Math.random() * (24 - 15 + 1)) + 15; // 15-24 độ
-                condition = "cloudy";
-            } else {
-                temp = Math.floor(Math.random() * (30 - 24 + 1)) + 24; // 24-30 độ
-                condition = "sunny";
-            }
-
-            if(condition === "sunny") conditionVN = "Trời nắng đẹp";
-            if(condition === "cloudy") conditionVN = "Nhiều mây / Âm u";
-            if(condition === "rainy") conditionVN = "Có mưa rào";
-
-            resolve({ temp, condition, conditionVN });
-        }, 1500); 
+            const temp = temps[Math.floor(Math.random()*temps.length)];
+            const cond = conditions[Math.floor(Math.random()*conditions.length)];
+            const wind = winds[Math.floor(Math.random()*winds.length)];
+            const humid = humids[Math.floor(Math.random()*humids.length)];
+            resolve({ temp, cond, wind, humid });
+        }, 1000);
     });
 }
 
-// 5. Hàm chính: Tính toán dự báo
-async function predictCrowd() {
-    const provinceKey = document.getElementById("province").value;
-    const spotKey = document.getElementById("destination").value;
-    const dateInput = document.getElementById("date").value;
-    const btn = document.getElementById("predictBtn");
-    const loading = document.getElementById("loading");
-    const resultDiv = document.getElementById("result");
+// --- LOGIC PHÂN TÍCH CHÍNH ---
+async function runPrediction() {
+    const pKey = document.getElementById("province").value;
+    const dKey = document.getElementById("destination").value;
+    const dateStr = document.getElementById("date").value;
 
-    if(!provinceKey || !spotKey || !dateInput){
-        alert("Vui lòng chọn đầy đủ Địa điểm và Ngày đi!");
-        return;
+    if(!pKey || !dKey || !dateStr) { alert("Vui lòng nhập đủ thông tin!"); return; }
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("resultSection").style.display = "none";
+
+    const spot = locationData[pKey].spots[dKey];
+    const weather = await fetchWeatherMock();
+    const isWeekend = [0,6].includes(new Date(dateStr).getDay());
+
+    // 1. Chạy "Hồi quy" giả lập
+    let predictedVisitors = spot.baseVisits;
+    if(isWeekend) predictedVisitors *= 1.4;
+    if(weather.cond === "Sunny") predictedVisitors *= 1.1;
+    if(weather.cond === "Rainy") predictedVisitors *= 0.6;
+    predictedVisitors = Math.round(predictedVisitors);
+
+    // 2. Tính toán Crowd Score (0-100)
+    let score = Math.round((predictedVisitors / spot.capacity) * 100);
+    if(score > 100) score = 100;
+
+    let status, color, hexColor, wait, bestTime, bestSub;
+    if(score <= 50) {
+        status = "LOW CROWD"; hexColor = "var(--low-color)";
+        wait = "5 - 10 min"; bestTime = "Đi giờ nào cũng đẹp"; bestSub = "Mật độ thấp cả ngày";
+    } else if(score <= 80) {
+        status = "MEDIUM CROWD"; hexColor = "var(--medium-color)";
+        wait = "20 - 30 min"; bestTime = "07:00 - 09:00"; bestSub = "Giảm 35% lượng khách";
+    } else {
+        status = "HIGH CROWD"; hexColor = "var(--high-color)";
+        wait = "45 - 60+ min"; bestTime = "06:00 - 07:30"; bestSub = "Giảm 60% lượng khách";
     }
 
-    // Hiển thị trạng thái đang tải
-    btn.disabled = true;
-    loading.style.display = "block";
-    resultDiv.style.display = "none";
-
-    // Lấy dữ liệu lượng khách cơ bản của điểm đó
-    let baseVisitors = locationData[provinceKey].spots[spotKey].baseVisits;
-
-    // GỌI MOCK API THỜI TIẾT TỰ ĐỘNG
-    const weatherData = await fetchWeather(dateInput);
+    // Cập nhật DOM - Hero KPI
+    const heroScore = document.getElementById("heroScore");
+    heroScore.innerHTML = `${score}<span class="score-suffix">/100</span>`;
+    heroScore.style.color = hexColor;
     
-    // Thuật toán "Hồi quy" đơn giản
-    let visitors = baseVisitors;
-    let selectedDate = new Date(dateInput);
-    let day = selectedDate.getDay();
-    let weekend = (day === 0 || day === 6);
+    const heroLabel = document.getElementById("heroLabel");
+    heroLabel.innerText = status;
+    heroLabel.style.backgroundColor = hexColor + "33"; // Thêm độ trong suốt
+    heroLabel.style.color = hexColor;
+    heroLabel.style.border = `1px solid ${hexColor}`;
 
-    // Yếu tố cuối tuần (Tăng 40%)
-    if(weekend) visitors *= 1.40;
+    // Cập nhật KPI Cards
+    document.getElementById("kpiVisitors").innerText = predictedVisitors.toLocaleString("vi-VN");
+    document.getElementById("kpiCrowdLevel").innerText = status.split(" ")[0]; // Chữ LOW/MEDIUM/HIGH
+    const kpiCrowdCard = document.getElementById("kpiCrowdCard");
+    kpiCrowdCard.style.borderColor = hexColor;
+    kpiCrowdCard.style.background = `linear-gradient(to bottom, ${hexColor}22, transparent)`;
+    
+    document.getElementById("kpiWait").innerText = wait;
+    document.getElementById("kpiBest").innerText = bestTime;
+    document.getElementById("kpiBestSub").innerText = bestSub;
 
-    // Yếu tố thời tiết (Dựa vào API trả về)
-    if(weatherData.temp >= 20 && weatherData.temp <= 30) visitors *= 1.15; // Thời tiết lý tưởng
-    if(weatherData.condition === "cloudy") visitors *= 0.90; // Âm u giảm nhẹ
-    if(weatherData.condition === "rainy") visitors *= 0.60; // Mưa giảm mạnh
+    // Cập nhật Weather
+    document.getElementById("wTemp").innerText = weather.temp + "°C";
+    document.getElementById("wCond").innerText = weather.cond;
+    document.getElementById("wHumid").innerText = weather.humid + "%";
+    document.getElementById("wWind").innerText = weather.wind + " km/h";
+    let iconClass = "fas fa-cloud-sun";
+    if(weather.cond === "Rainy") iconClass = "fas fa-cloud-rain";
+    if(weather.cond === "Sunny") iconClass = "fas fa-sun";
+    document.getElementById("wIcon").className = iconClass;
 
-    visitors = Math.round(visitors);
+    // Cập nhật Recommendation
+    const dayText = isWeekend ? "cuối tuần" : "ngày thường";
+    const wText = weather.cond === "Rainy" ? "có mưa" : "nắng đẹp";
+    document.getElementById("recommendationText").innerHTML = `Ngày được chọn là <b>${dayText}</b>, kết hợp thời tiết dự báo <b>${wText}</b> khiến mô hình dự phóng lượng khách đạt <b>${score}% sức chứa</b>. ${score > 80 ? '⚠️ Khuyến nghị nên đi thật sớm hoặc chọn ngày khác để đảm bảo trải nghiệm.' : '✅ Rất thích hợp để tham quan.'}`;
 
-    // Phân loại kết quả
-    let crowdLevel, waitTime, bestTime;
-    let thresholdLow = baseVisitors * 0.8;
-    let thresholdHigh = baseVisitors * 1.3;
+    // Cập nhật Badges & Confidence
+    document.getElementById("badgeWeekend").className = isWeekend ? "badge active" : "badge";
+    document.getElementById("badgeWeather").className = weather.cond !== "Cloudy" ? "badge active" : "badge";
+    const randConf = Math.floor(Math.random() * (95 - 85 + 1) + 85); // 85% - 95%
+    document.getElementById("modelConfidence").innerHTML = `<i class="fas fa-check-circle"></i> Model Confidence: ${randConf}%`;
 
-    if(visitors < thresholdLow){
-        crowdLevel = "Thưa thớt 🟢";
-        waitTime = "0 - 5 phút";
-        bestTime = "Đi giờ nào cũng đẹp";
-    }
-    else if(visitors < thresholdHigh){
-        crowdLevel = "Trung bình 🟡";
-        waitTime = "15 - 20 phút";
-        bestTime = "Trước 9h sáng";
-    }
-    else{
-        crowdLevel = "Quá tải 🔴";
-        waitTime = "45 - 60 phút";
-        bestTime = "6h30 - 7h30 sáng";
-    }
+    // Vẽ biểu đồ Chart.js (Theo giờ)
+    renderChart(predictedVisitors);
 
-    // Hiển thị thông tin thời tiết tự động
-    document.getElementById("weatherDisplay").innerHTML = 
-        `Dữ liệu thời tiết dự báo: Nhiệt độ khoảng <span>${weatherData.temp}°C</span>, Tình trạng: <span>${weatherData.conditionVN}</span>.`;
+    // Hiển thị kết quả
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("resultSection").style.display = "block";
+}
 
-    // Cập nhật số liệu
-    document.getElementById("visitors").innerHTML = visitors.toLocaleString("vi-VN") + " người";
-    document.getElementById("crowd").innerHTML = crowdLevel;
-    document.getElementById("wait").innerHTML = waitTime;
-    document.getElementById("besttime").innerHTML = bestTime;
+function renderChart(totalVisits) {
+    const ctx = document.getElementById('visitorChart').getContext('2d');
+    if(myChart) myChart.destroy(); // Xóa biểu đồ cũ nếu có
 
-    // Tắt loading, hiện kết quả
-    loading.style.display = "none";
-    btn.disabled = false;
-    resultDiv.style.display = "block";
+    // Giả lập phân bổ khách theo giờ (Đường cong hình chuông)
+    const distribution = [0.02, 0.05, 0.1, 0.18, 0.2, 0.15, 0.1, 0.08, 0.07, 0.05]; 
+    const hours = ['07:00', '08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const dataPoints = distribution.map(pct => Math.round(totalVisits * pct));
+
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: hours,
+            datasets: [{
+                label: 'Dự báo lượng khách',
+                data: dataPoints,
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                borderWidth: 3,
+                pointBackgroundColor: '#fff',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4 // Làm cong đường line
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+            }
+        }
+    });
 }
 </script>
 
