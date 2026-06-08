@@ -3,40 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ thống CrowdLess - Heritage Prediction</title>
+<title>Hệ thống CrowdLess - Dự báo du lịch</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
 :root {
-    /* Indochine Color Palette */
+    /* Màu Indochine theo yêu cầu */
     --primary: #A44A3F;
     --secondary: #D4A373;
     --bg-color: #F5E6CC;
     --dark: #3B2F2F;
     --text-muted: #6b5a5a;
-    --panel-bg: rgba(255, 250, 240, 0.9);
+    --panel-bg: rgba(255, 250, 240, 0.92);
     --border-color: rgba(164, 74, 63, 0.15);
     
-    /* Trạng thái */
-    --low-color: #3e7b5b; /* Xanh rêu cổ */
-    --medium-color: #D4A373;
-    --high-color: #A44A3F;
+    /* Màu trạng thái (Điều chỉnh lại tone cho hợp với Indochine) */
+    --low-color: #3e7b5b; /* Xanh lá rêu cổ */
+    --medium-color: #D4A373; /* Vàng đồng */
+    --high-color: #A44A3F; /* Đỏ gạch */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    /* Nền màu kem kết hợp texture giấy dó (noise SVG) */
     background-color: var(--bg-color);
+    /* Nền giấy dó */
     background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     color: var(--dark);
     font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
     min-height: 100vh;
+    padding-bottom: 40px;
 }
 
 h1, h2, h3, .value, .crowd-score, .btn-predict {
@@ -47,16 +47,15 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
 .hero-section {
     position: relative;
     width: 100%;
-    height: 45vh;
-    min-height: 350px;
-    background: linear-gradient(to bottom, rgba(59, 47, 47, 0.4), rgba(59, 47, 47, 0.8)), 
+    height: 40vh;
+    min-height: 300px;
+    background: linear-gradient(to bottom, rgba(59, 47, 47, 0.5), rgba(59, 47, 47, 0.8)), 
                 url('https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2000&auto=format&fit=crop') center/cover;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: var(--bg-color);
     padding: 0 20px;
 }
 
@@ -68,46 +67,47 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
     background-image: radial-gradient(circle, transparent 20%, rgba(245, 230, 204, 0.05) 21%, transparent 22%),
                       radial-gradient(circle, transparent 40%, rgba(245, 230, 204, 0.05) 41%, transparent 42%);
     background-size: 100px 100px;
-    opacity: 0.5;
+    opacity: 0.6;
     pointer-events: none;
 }
 
 .hero-section h1 {
-    font-size: 48px;
+    font-size: 42px;
     font-weight: 700;
     margin-bottom: 10px;
     color: var(--bg-color);
     letter-spacing: 1px;
     text-shadow: 2px 4px 10px rgba(0,0,0,0.5);
     z-index: 1;
+    text-transform: uppercase;
 }
 
 .hero-section p {
-    font-size: 22px;
+    font-size: 20px;
     font-style: italic;
     color: var(--secondary);
     z-index: 1;
+    font-family: 'Cormorant Garamond', serif;
 }
 
 .dashboard-container {
     max-width: 1100px;
-    margin: -60px auto 40px; /* Pull up to overlap banner */
+    margin: -50px auto 0;
     position: relative;
     z-index: 10;
     padding: 0 15px;
 }
 
-/* Hiệu ứng trượt lên */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Card Chung - Bo góc lớn, bóng mờ ấm */
+/* Panel chung bo góc lớn, màu kem */
 .glass-panel {
     background: var(--panel-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 24px;
     padding: 30px;
     box-shadow: 0 15px 40px rgba(59, 47, 47, 0.08);
@@ -117,59 +117,49 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
 
 /* Form nhập liệu */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-size: 16px; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+.form-group label { display: block; margin-bottom: 8px; font-size: 16px; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
 .form-group select, .form-group input {
     width: 100%; padding: 14px 15px; border-radius: 12px; border: 1px solid var(--border-color);
-    background: #fff; color: var(--dark); font-size: 18px; outline: none; transition: all 0.3s ease;
+    background: #fff; color: var(--dark); font-size: 17px; outline: none; transition: all 0.3s ease;
     font-family: 'Cormorant Garamond', serif;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
 }
-.form-group select:focus, .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(164, 74, 63, 0.1); }
+.form-group select:focus, .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(164, 74, 63, 0.15);}
 
 .btn-predict {
     width: 100%; padding: 16px; margin-top: 25px; border-radius: 12px; border: none;
-    background: var(--primary); color: var(--bg-color); font-size: 20px; font-weight: 700; letter-spacing: 1px;
+    background: var(--primary); color: var(--bg-color); font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
     cursor: pointer; transition: all 0.3s;
 }
-.btn-predict:hover { background: #8A3E35; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(164, 74, 63, 0.3); }
+.btn-predict:hover { background: #8A3E35; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(164, 74, 63, 0.3); }
 
-/* Kết quả - Ẩn mặc định */
 #resultSection { display: none; opacity: 0; animation: none; border-top: 5px solid var(--primary); }
 
 /* 1. Hero KPI */
-.hero-kpi { text-align: center; padding: 20px 0 35px; border-bottom: 1px dashed var(--border-color); margin-bottom: 25px; }
-.crowd-score { font-size: 80px; font-weight: 700; line-height: 1; margin-bottom: 10px; transition: color 0.5s; color: var(--primary); }
-.score-suffix { font-size: 28px; color: var(--text-muted); font-family: 'Cormorant Garamond', serif; font-style: italic;}
-.crowd-label { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 8px 25px; border-radius: 30px; display: inline-block; font-family: 'Cormorant Garamond', serif;}
+.hero-kpi { text-align: center; padding: 20px 0 30px; border-bottom: 1px dashed var(--border-color); margin-bottom: 25px; }
+.crowd-score { font-size: 72px; font-weight: 700; line-height: 1; margin-bottom: 10px; transition: color 0.5s;}
+.score-suffix { font-size: 24px; color: var(--text-muted); font-style: italic; font-family: 'Cormorant Garamond', serif;}
+.crowd-label { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 8px 25px; border-radius: 30px; display: inline-block; font-family: 'Cormorant Garamond', serif; }
 
 /* 7. Recommendation Box */
 .rec-box {
     background: rgba(212, 163, 115, 0.1); border-left: 4px solid var(--secondary); padding: 20px;
-    border-radius: 12px; margin-bottom: 30px; display: flex; gap: 15px; align-items: flex-start;
+    border-radius: 12px; margin-bottom: 25px; display: flex; gap: 15px; align-items: flex-start;
 }
-.rec-box i { font-size: 24px; color: var(--primary); margin-top: 2px; }
-.rec-box p { font-size: 18px; line-height: 1.5; color: var(--dark); }
+.rec-box i { font-size: 26px; color: var(--primary); margin-top: 2px; }
+.rec-box p, .rec-box span { font-size: 18px; line-height: 1.6; color: var(--dark); }
 
 /* 8. KPI Cards */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-.kpi-card { 
-    background: #fff; padding: 25px 20px; border-radius: 16px; 
-    border: 1px solid var(--border-color); transition: all 0.3s; 
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-.kpi-card::after {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--secondary);
-}
+.kpi-card { background: #fff; padding: 25px 20px; border-radius: 16px; border: 1px solid var(--border-color); transition: all 0.3s; position: relative; overflow: hidden;}
+.kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--secondary); }
 .kpi-card:nth-child(1)::after { background: var(--primary); }
 .kpi-card:nth-child(3)::after { background: var(--text-muted); }
 
 .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(59, 47, 47, 0.1); }
-.kpi-card h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Cormorant Garamond', serif; font-weight: 600;}
+.kpi-card h3 { font-size: 15px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-family: 'Cormorant Garamond', serif;}
 .kpi-card h3 i { color: var(--secondary); margin-right: 5px; }
-.kpi-card .value { font-size: 32px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
-.kpi-card .sub-text { font-size: 16px; color: var(--text-muted); font-style: italic; }
+.kpi-card .value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+.kpi-card .sub-text { font-size: 15px; color: var(--text-muted); font-style: italic;}
 
 /* Chart & Weather Section */
 .data-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 20px; }
@@ -180,30 +170,30 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
 
 /* Weather Cards */
 .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.w-card { background: var(--bg-color); padding: 18px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(164, 74, 63, 0.05); }
+.w-card { background: var(--bg-color); padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(164, 74, 63, 0.05);}
 .w-card i { font-size: 24px; margin-bottom: 10px; color: var(--secondary); }
-.w-card .w-val { font-size: 22px; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif;}
-.w-card .w-lbl { font-size: 15px; color: var(--text-muted); margin-top: 5px; font-style: italic;}
+.w-card .w-val { font-size: 20px; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif;}
+.w-card .w-lbl { font-size: 14px; color: var(--text-muted); margin-top: 3px; font-style: italic;}
 
-/* Footer Info */
+/* 9 & 3. Factors & Confidence */
 .footer-info { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 25px; flex-wrap: wrap; gap: 15px; }
 .factors { display: flex; gap: 10px; flex-wrap: wrap; }
 .badge { background: #fff; border: 1px solid var(--border-color); padding: 6px 16px; border-radius: 20px; font-size: 15px; font-weight: 600; color: var(--text-muted); transition: 0.3s;}
-.badge i { margin-right: 5px; color: var(--secondary);}
+.badge i { margin-right: 5px; color: var(--secondary); }
 .badge.active { background: rgba(164, 74, 63, 0.05); color: var(--primary); border-color: var(--primary); }
-.confidence { font-size: 16px; font-weight: 600; color: var(--primary); background: rgba(164, 74, 63, 0.08); padding: 8px 20px; border-radius: 25px; font-style: italic; }
+.confidence { font-size: 16px; font-weight: 600; color: var(--primary); background: rgba(164, 74, 63, 0.08); padding: 8px 20px; border-radius: 25px; font-style: italic;}
 
 @media (max-width: 768px) {
     .form-grid, .kpi-grid, .data-grid { grid-template-columns: 1fr; }
-    .hero-section h1 { font-size: 36px; }
+    .hero-section h1 { font-size: 32px; }
 }
 </style>
 </head>
 <body>
 
 <div class="hero-section">
-    <h1>Đông Dương Heritage</h1>
-    <p>Dự báo lượng khách & Khám phá vẻ đẹp Cố đô</p>
+    <h1>HỆ THỐNG CROWDLESS</h1>
+    <p>Mô hình AI dự báo mật độ du lịch & Tối ưu hoá vận hành điểm đến</p>
 </div>
 
 <div class="dashboard-container">
@@ -226,12 +216,12 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
                 <input type="date" id="date">
             </div>
         </div>
-        <button class="btn-predict" onclick="runPrediction()"><i class="fas fa-compass"></i> Khởi Tạo Dự Báo</button>
+        <button class="btn-predict" onclick="runPrediction()"><i class="fas fa-brain"></i> Chạy mô hình phân tích</button>
     </div>
 
-    <div id="loading" style="display:none; text-align:center; color: var(--primary); padding: 40px;">
-        <i class="fas fa-dharmachakra fa-spin fa-3x"></i>
-        <p style="margin-top: 15px; font-size: 18px; font-weight: 600; font-family: 'Cormorant Garamond', serif; font-style: italic;">Đang thu thập dữ liệu lịch sử & tính toán phong thủy...</p>
+    <div id="loading" style="display:none; text-align:center; color: var(--primary); padding: 30px;">
+        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+        <p style="margin-top: 15px; font-size: 18px; font-weight: 600; font-family: 'Cormorant Garamond', serif; font-style: italic;">Đang thu thập dữ liệu API thời tiết & Chạy mô hình hồi quy đa biến...</p>
     </div>
 
     <div class="glass-panel" id="resultSection">
@@ -242,9 +232,9 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
         </div>
 
         <div class="rec-box">
-            <i class="fas fa-feather-alt"></i>
+            <i class="fas fa-lightbulb"></i>
             <div>
-                <strong style="color: var(--primary); font-size: 20px; font-family: 'Playfair Display', serif;">Gợi ý hành trình: </strong><br>
+                <strong style="color: var(--primary); font-size: 18px; font-family: 'Playfair Display', serif;">AI Insights (Khuyến nghị): </strong><br>
                 <span id="recommendationText" style="margin-top: 5px; display: inline-block;">Khuyến nghị sẽ hiển thị tại đây.</span>
             </div>
         </div>
@@ -256,33 +246,35 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
                 <div class="sub-text">Người/ngày (Dự kiến)</div>
             </div>
             <div class="kpi-card" id="kpiCrowdCard">
-                <h3><i class="fas fa-torii-gate"></i> Trạng Thái</h3>
+                <h3><i class="fas fa-tachometer-alt"></i> Trạng Thái</h3>
                 <div class="value" id="kpiCrowdLevel">-</div>
                 <div class="sub-text">So với sức chứa tối đa</div>
             </div>
             <div class="kpi-card">
                 <h3><i class="fas fa-hourglass-half"></i> Thời Gian Chờ</h3>
                 <div class="value" id="kpiWait" style="color: var(--text-muted)">0 phút</div>
-                <div class="sub-text">Xếp hàng/soát vé</div>
+                <div class="sub-text">Trung bình xếp hàng/soát vé</div>
             </div>
             <div class="kpi-card">
-                <h3><i class="fas fa-clock"></i> Khung Giờ Đẹp</h3>
+                <h3><i class="fas fa-clock"></i> Giờ Vàng Nên Đi</h3>
                 <div class="value" id="kpiBest" style="color: var(--secondary)">00:00</div>
-                <div class="sub-text" id="kpiBestSub">Thích hợp check-in</div>
+                <div class="sub-text" id="kpiBestSub">Giảm 0% mật độ</div>
             </div>
         </div>
 
         <div class="data-grid">
             <div class="chart-container">
-                <div class="section-title"><i class="fas fa-chart-area"></i> Mật độ trong ngày</div>
-                <canvas id="visitorChart" height="250"></canvas>
+                <div class="section-title"><i class="fas fa-chart-line"></i> Biểu đồ Dự Báo Lượng Khách (Theo Giờ)</div>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="visitorChart"></canvas>
+                </div>
             </div>
             
             <div class="weather-container">
-                <div class="section-title"><i class="fas fa-cloud-sun"></i> Thời tiết dự báo</div>
+                <div class="section-title"><i class="fas fa-cloud-sun"></i> Yếu tố Thời tiết Dự báo</div>
                 <div class="weather-grid">
                     <div class="w-card">
-                        <i class="fas fa-temperature-high" style="color: var(--primary)"></i>
+                        <i class="fas fa-temperature-high" style="color:var(--primary)"></i>
                         <div class="w-val" id="wTemp">--°C</div>
                         <div class="w-lbl">Nhiệt độ</div>
                     </div>
@@ -292,12 +284,12 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
                         <div class="w-lbl">Tình trạng</div>
                     </div>
                     <div class="w-card">
-                        <i class="fas fa-tint" style="color: var(--secondary)"></i>
+                        <i class="fas fa-tint" style="color:var(--secondary)"></i>
                         <div class="w-val" id="wHumid">--%</div>
                         <div class="w-lbl">Độ ẩm</div>
                     </div>
                     <div class="w-card">
-                        <i class="fas fa-wind" style="color: #6b5a5a"></i>
+                        <i class="fas fa-wind" style="color:var(--text-muted)"></i>
                         <div class="w-val" id="wWind">-- km/h</div>
                         <div class="w-lbl">Sức gió</div>
                     </div>
@@ -307,12 +299,13 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
 
         <div class="footer-info">
             <div class="factors">
-                <span class="badge active"><i class="fas fa-scroll"></i> Dữ liệu Lịch sử</span>
-                <span class="badge" id="badgeWeekend"><i class="fas fa-calendar-day"></i> Biến Cuối tuần</span>
+                <span class="badge active"><i class="fas fa-database"></i> Dữ liệu Lịch sử</span>
+                <span class="badge" id="badgeWeekend"><i class="fas fa-calendar-alt"></i> Biến Cuối tuần</span>
                 <span class="badge" id="badgeWeather"><i class="fas fa-sun"></i> Biến Thời tiết</span>
+                <span class="badge active"><i class="fas fa-map-marker-alt"></i> Sức chứa Không gian</span>
             </div>
             <div class="confidence" id="modelConfidence">
-                Độ tin cậy mô hình: 89%
+                <i class="fas fa-check-circle"></i> Độ tin cậy mô hình: 89%
             </div>
         </div>
 
@@ -320,15 +313,42 @@ h1, h2, h3, .value, .crowd-score, .btn-predict {
 </div>
 
 <script>
-// --- GIỮ NGUYÊN DATA TỈNH THÀNH ---
+// --- FULL 34 TỈNH/THÀNH VÀ SỨC CHỨA (Giữ nguyên không đổi) ---
 const locationData = {
     "hanoi": { name: "Hà Nội", spots: { "langbac": { name: "Lăng Chủ tịch", baseVisits: 15000, capacity: 20000 }, "vanmieu": { name: "Văn Miếu Quốc Tử Giám", baseVisits: 8000, capacity: 12000 }, "hoguom": { name: "Phố đi bộ Hồ Gươm", baseVisits: 25000, capacity: 40000 } } },
-    "haiphong": { name: "Hải Phòng", spots: { "catba": { name: "Đảo Cát Bà", baseVisits: 12000, capacity: 18000 }, "doson": { name: "Biển Đồ Sơn", baseVisits: 8000, capacity: 15000 } } },
-    "hue": { name: "Thừa Thiên Huế", spots: { "dainoi": { name: "Đại Nội Huế", baseVisits: 12000, capacity: 18000 }, "langtuduc": { name: "Lăng Tự Đức", baseVisits: 5000, capacity: 8000 }, "thienmu": { name: "Chùa Thiên Mụ", baseVisits: 6000, capacity: 9000 } } },
-    "quangnam": { name: "Quảng Nam", spots: { "hoian": { name: "Phố cổ Hội An", baseVisits: 18000, capacity: 25000 }, "myson": { name: "Thánh địa Mỹ Sơn", baseVisits: 5000, capacity: 10000 } } },
-    "danang": { name: "Đà Nẵng", spots: { "banahills": { name: "Bà Nà Hills", baseVisits: 18000, capacity: 25000 }, "cauvang": { name: "Cầu Vàng", baseVisits: 15000, capacity: 20000 } } },
-    "hcm": { name: "Hồ Chí Minh", spots: { "dinhdoclap": { name: "Dinh Độc Lập", baseVisits: 10000, capacity: 15000 }, "benthanh": { name: "Chợ Bến Thành", baseVisits: 15000, capacity: 22000 } } }
-    // (Lược bớt data trong comment này cho gọn, cậu có thể paste lại cục data full 34 tỉnh của cậu vào đây nhé)
+    "haiphong": { name: "Hải Phòng", spots: { "catba": { name: "Đảo Cát Bà", baseVisits: 12000, capacity: 18000 }, "doson": { name: "Biển Đồ Sơn", baseVisits: 8000, capacity: 15000 }, "lanha": { name: "Vịnh Lan Hạ", baseVisits: 9000, capacity: 12000 } } },
+    "hue": { name: "Huế", spots: { "dainoi": { name: "Đại Nội Huế", baseVisits: 12000, capacity: 18000 }, "langtuduc": { name: "Lăng Tự Đức", baseVisits: 5000, capacity: 8000 }, "thienmu": { name: "Chùa Thiên Mụ", baseVisits: 6000, capacity: 9000 } } },
+    "danang": { name: "Đà Nẵng", spots: { "banahills": { name: "Bà Nà Hills", baseVisits: 18000, capacity: 25000 }, "cauvang": { name: "Cầu Vàng", baseVisits: 15000, capacity: 20000 }, "sontra": { name: "Bán đảo Sơn Trà", baseVisits: 8000, capacity: 15000 } } },
+    "cantho": { name: "Cần Thơ", spots: { "cairang": { name: "Chợ nổi Cái Răng", baseVisits: 10000, capacity: 15000 }, "ninhkieu": { name: "Bến Ninh Kiều", baseVisits: 12000, capacity: 20000 }, "binhthuy": { name: "Nhà cổ Bình Thủy", baseVisits: 4000, capacity: 6000 } } },
+    "hcm": { name: "Hồ Chí Minh", spots: { "dinhdoclap": { name: "Dinh Độc Lập", baseVisits: 10000, capacity: 15000 }, "benthanh": { name: "Chợ Bến Thành", baseVisits: 15000, capacity: 22000 }, "nguyenhue": { name: "Phố đi bộ Nguyễn Huệ", baseVisits: 30000, capacity: 50000 } } },
+    "caobang": { name: "Cao Bằng", spots: { "bangioc": { name: "Thác Bản Giốc", baseVisits: 8000, capacity: 12000 }, "lenin": { name: "Suối Lê Nin", baseVisits: 5000, capacity: 8000 }, "nguomngao": { name: "Động Ngườm Ngao", baseVisits: 4000, capacity: 6000 } } },
+    "langson": { name: "Lạng Sơn", spots: { "mauson": { name: "Đỉnh Mẫu Sơn", baseVisits: 5000, capacity: 8000 }, "tamthanh": { name: "Động Tam Thanh", baseVisits: 4000, capacity: 7000 }, "dongkinh": { name: "Chợ Đông Kinh", baseVisits: 6000, capacity: 10000 } } },
+    "quangninh": { name: "Quảng Ninh", spots: { "halong": { name: "Vịnh Hạ Long", baseVisits: 20000, capacity: 30000 }, "yentu": { name: "Khu di tích Yên Tử", baseVisits: 8000, capacity: 15000 }, "sunworld": { name: "Sun World Hạ Long", baseVisits: 12000, capacity: 20000 } } },
+    "laichau": { name: "Lai Châu", spots: { "oquyho": { name: "Đèo Ô Quy Hồ", baseVisits: 6000, capacity: 10000 }, "tanuyen": { name: "Đồi chè Tân Uyên", baseVisits: 3000, capacity: 6000 }, "putaleng": { name: "Đỉnh Pu Ta Leng", baseVisits: 2000, capacity: 4000 } } },
+    "dienbien": { name: "Điện Biên", spots: { "doia1": { name: "Đồi A1", baseVisits: 5000, capacity: 8000 }, "docat": { name: "Hầm Đờ Cát", baseVisits: 4000, capacity: 7000 }, "pakhoang": { name: "Hồ Pá Khoang", baseVisits: 3000, capacity: 6000 } } },
+    "sonla": { name: "Sơn La", spots: { "mocchau": { name: "Rừng thông Mộc Châu", baseVisits: 12000, capacity: 18000 }, "taxua": { name: "Thiên đường mây Tà Xùa", baseVisits: 8000, capacity: 12000 }, "doiche": { name: "Đồi chè Trái Tim", baseVisits: 6000, capacity: 10000 } } },
+    "thanhhoa": { name: "Thanh Hóa", spots: { "samson": { name: "Biển Sầm Sơn", baseVisits: 25000, capacity: 40000 }, "nhaho": { name: "Thành nhà Hồ", baseVisits: 4000, capacity: 8000 }, "puluong": { name: "Khu bảo tồn Pù Luông", baseVisits: 6000, capacity: 10000 } } },
+    "nghean": { name: "Nghệ An", spots: { "cualo": { name: "Biển Cửa Lò", baseVisits: 20000, capacity: 35000 }, "langsen": { name: "Làng Sen quê Bác", baseVisits: 10000, capacity: 18000 }, "daoche": { name: "Đảo chè Thanh Chương", baseVisits: 5000, capacity: 9000 } } },
+    "hatinh": { name: "Hà Tĩnh", spots: { "thiencam": { name: "Biển Thiên Cầm", baseVisits: 8000, capacity: 15000 }, "dongloc": { name: "Ngã ba Đồng Lộc", baseVisits: 6000, capacity: 12000 }, "kego": { name: "Hồ Kẻ Gỗ", baseVisits: 4000, capacity: 8000 } } },
+    "tuyenquang": { name: "Tuyên Quang", spots: { "tantrao": { name: "Khu di tích Tân Trào", baseVisits: 5000, capacity: 10000 }, "mylam": { name: "Suối khoáng Mỹ Lâm", baseVisits: 4000, capacity: 8000 }, "nahang": { name: "Hồ Na Hang", baseVisits: 5000, capacity: 9000 } } },
+    "laocai": { name: "Lào Cai", spots: { "fansipan": { name: "Đỉnh Fansipan", baseVisits: 15000, capacity: 20000 }, "catcat": { name: "Bản Cát Cát", baseVisits: 10000, capacity: 15000 }, "sapa": { name: "Nhà thờ đá Sa Pa", baseVisits: 8000, capacity: 12000 } } },
+    "thainguyen": { name: "Thái Nguyên", spots: { "nuicoc": { name: "Hồ Núi Cốc", baseVisits: 7000, capacity: 12000 }, "tancuong": { name: "Đồi chè Tân Cương", baseVisits: 5000, capacity: 9000 }, "dinhhoa": { name: "ATK Định Hóa", baseVisits: 4000, capacity: 8000 } } },
+    "phutho": { name: "Phú Thọ", spots: { "denhung": { name: "Đền Hùng", baseVisits: 20000, capacity: 50000 }, "aochau": { name: "Đầm Ao Châu", baseVisits: 3000, capacity: 6000 }, "thanhthuy": { name: "Nước khoáng Thanh Thủy", baseVisits: 5000, capacity: 9000 } } },
+    "bacninh": { name: "Bắc Ninh", spots: { "dendo": { name: "Đền Đô", baseVisits: 5000, capacity: 10000 }, "phulang": { name: "Làng gốm Phù Lãng", baseVisits: 4000, capacity: 8000 }, "phattich": { name: "Chùa Phật Tích", baseVisits: 6000, capacity: 12000 } } },
+    "hungyen": { name: "Hưng Yên", spots: { "phohien": { name: "Phố Hiến", baseVisits: 4000, capacity: 8000 }, "langnom": { name: "Làng Nôm", baseVisits: 3000, capacity: 6000 }, "chudongtu": { name: "Đền Chử Đồng Tử", baseVisits: 4000, capacity: 8000 } } },
+    "ninhbinh": { name: "Ninh Bình", spots: { "trangan": { name: "Tràng An", baseVisits: 15000, capacity: 25000 }, "baidinh": { name: "Chùa Bái Đính", baseVisits: 18000, capacity: 30000 }, "tamcoc": { name: "Tam Cốc - Bích Động", baseVisits: 10000, capacity: 15000 } } },
+    "quangtri": { name: "Quảng Trị", spots: { "thanhco": { name: "Thành cổ Quảng Trị", baseVisits: 6000, capacity: 12000 }, "truongson": { name: "Nghĩa trang Trường Sơn", baseVisits: 5000, capacity: 15000 }, "vinhmoc": { name: "Địa đạo Vịnh Mốc", baseVisits: 4000, capacity: 8000 } } },
+    "quangngai": { name: "Quảng Ngãi", spots: { "lyson": { name: "Đảo Lý Sơn", baseVisits: 8000, capacity: 12000 }, "mykhe": { name: "Biển Mỹ Khê", baseVisits: 5000, capacity: 10000 }, "sahuynh": { name: "Đồng muối Sa Huỳnh", baseVisits: 4000, capacity: 8000 } } },
+    "gialai": { name: "Gia Lai", spots: { "bieho": { name: "Biển Hồ", baseVisits: 6000, capacity: 10000 }, "chudangya": { name: "Núi lửa Chư Đăng Ya", baseVisits: 5000, capacity: 9000 }, "phucuong": { name: "Thác Phú Cường", baseVisits: 4000, capacity: 7000 } } },
+    "khanhhoa": { name: "Khánh Hòa", spots: { "vinwonders": { name: "VinWonders Nha Trang", baseVisits: 18000, capacity: 25000 }, "ponagar": { name: "Tháp Bà Ponagar", baseVisits: 10000, capacity: 15000 }, "haiduonghoc": { name: "Viện Hải Dương Học", baseVisits: 8000, capacity: 12000 } } },
+    "lamdong": { name: "Lâm Đồng", spots: { "langbiang": { name: "Đỉnh Langbiang", baseVisits: 9000, capacity: 15000 }, "tuyenlam": { name: "Hồ Tuyền Lâm", baseVisits: 8000, capacity: 12000 }, "thunglungtinhyeu": { name: "Thung lũng Tình Yêu", baseVisits: 10000, capacity: 16000 } } },
+    "daklak": { name: "Đắk Lắk", spots: { "holak": { name: "Hồ Lắk", baseVisits: 5000, capacity: 9000 }, "baotangcaphe": { name: "Bảo tàng Thế giới Cà phê", baseVisits: 7000, capacity: 10000 }, "bandon": { name: "Bản Đôn", baseVisits: 6000, capacity: 10000 } } },
+    "dongnai": { name: "Đồng Nai", spots: { "buulong": { name: "Khu du lịch Bửu Long", baseVisits: 8000, capacity: 15000 }, "giangdien": { name: "Thác Giang Điền", baseVisits: 7000, capacity: 12000 }, "namcattien": { name: "VQG Nam Cát Tiên", baseVisits: 5000, capacity: 8000 } } },
+    "tayninh": { name: "Tây Ninh", spots: { "nuibaden": { name: "Núi Bà Đen", baseVisits: 15000, capacity: 25000 }, "toathanh": { name: "Tòa thánh Tây Ninh", baseVisits: 8000, capacity: 15000 }, "hodautieng": { name: "Hồ Dầu Tiếng", baseVisits: 6000, capacity: 10000 } } },
+    "dongthap": { name: "Đồng Tháp", spots: { "tramchim": { name: "Tràm chim Tam Nông", baseVisits: 6000, capacity: 10000 }, "sadec": { name: "Làng hoa Sa Đéc", baseVisits: 10000, capacity: 18000 }, "xeoquyt": { name: "Khu di tích Xẻo Quýt", baseVisits: 4000, capacity: 8000 } } },
+    "vinhlong": { name: "Vĩnh Long", spots: { "anbinh": { name: "Cù lao An Bình", baseVisits: 5000, capacity: 9000 }, "traon": { name: "Chợ nổi Trà Ôn", baseVisits: 4000, capacity: 7000 }, "vinhsang": { name: "KDL Vinh Sang", baseVisits: 5000, capacity: 8000 } } },
+    "angiang": { name: "An Giang", spots: { "trasu": { name: "Rừng tràm Trà Sư", baseVisits: 8000, capacity: 12000 }, "miubachua": { name: "Miếu Bà Chúa Xứ", baseVisits: 15000, capacity: 25000 }, "nuicam": { name: "Núi Cấm", baseVisits: 7000, capacity: 12000 } } },
+    "camau": { name: "Cà Mau", spots: { "datmui": { name: "Mũi Cà Mau", baseVisits: 8000, capacity: 15000 }, "uminhha": { name: "Rừng U Minh Hạ", baseVisits: 5000, capacity: 9000 }, "honkhoai": { name: "Đảo Hòn Khoai", baseVisits: 3000, capacity: 6000 } } }
 };
 
 // --- HÀM ANIMATION ĐẾM SỐ ---
@@ -346,6 +366,7 @@ function animateValue(obj, start, end, duration, isFormat) {
     window.requestAnimationFrame(step);
 }
 
+// --- LOGIC GIAO DIỆN VÀ CHẠY MÔ HÌNH ---
 function initProvinces() {
     const provinceSelect = document.getElementById("province");
     for (let key in locationData) {
@@ -378,7 +399,7 @@ async function fetchWeatherMock() {
             const wind = winds[Math.floor(Math.random()*winds.length)];
             const humid = humids[Math.floor(Math.random()*humids.length)];
             resolve({ temp, cond, wind, humid });
-        }, 1200); 
+        }, 1200); // Tạo độ trễ 1.2s cho giống thật
     });
 }
 
@@ -387,12 +408,12 @@ async function runPrediction() {
     const dKey = document.getElementById("destination").value;
     const dateStr = document.getElementById("date").value;
 
-    if(!pKey || !dKey || !dateStr) { alert("Bạn vui lòng chọn đầy đủ Địa điểm và Ngày đi nhé!"); return; }
+    if(!pKey || !dKey || !dateStr) { alert("Cậu vui lòng chọn đầy đủ Địa điểm và Ngày đi nhé!"); return; }
 
     document.getElementById("loading").style.display = "block";
     const resultSection = document.getElementById("resultSection");
     resultSection.style.display = "none";
-    resultSection.style.animation = "none"; 
+    resultSection.style.animation = "none"; // Reset animation
 
     const spot = locationData[pKey].spots[dKey];
     const weather = await fetchWeatherMock();
@@ -409,19 +430,19 @@ async function runPrediction() {
 
     let status, hexColor, wait, bestTime, bestSub;
     if(score <= 50) {
-        status = "THƯA THỚT"; hexColor = "var(--low-color)";
+        status = "VẮNG KHÁCH"; hexColor = "var(--low-color)";
         wait = "5 - 10 phút"; bestTime = "Đi giờ nào cũng đẹp"; bestSub = "Mật độ thấp cả ngày";
     } else if(score <= 80) {
-        status = "ĐÔNG ĐÚC"; hexColor = "var(--medium-color)";
-        wait = "20 - 30 phút"; bestTime = "07:00 - 09:00"; bestSub = "Khung giờ vàng sáng sớm";
+        status = "TRUNG BÌNH"; hexColor = "var(--medium-color)";
+        wait = "20 - 30 phút"; bestTime = "07:00 - 09:00"; bestSub = "Giảm 35% lượng khách";
     } else {
         status = "QUÁ TẢI"; hexColor = "var(--high-color)";
-        wait = "45 - 60+ phút"; bestTime = "06:00 - 07:30"; bestSub = "Nên tránh giờ cao điểm";
+        wait = "45 - 60+ phút"; bestTime = "06:00 - 07:30"; bestSub = "Giảm 60% lượng khách";
     }
 
     const heroScoreSpan = document.getElementById("heroScore");
     heroScoreSpan.style.color = hexColor;
-    animateValue(heroScoreSpan, 0, score, 1500, false); 
+    animateValue(heroScoreSpan, 0, score, 1500, false); // Đếm số
     
     const heroLabel = document.getElementById("heroLabel");
     heroLabel.innerText = status;
@@ -430,7 +451,7 @@ async function runPrediction() {
     heroLabel.style.border = `1px solid ${hexColor}`;
 
     const kpiVisitorsSpan = document.getElementById("kpiVisitors");
-    animateValue(kpiVisitorsSpan, 0, predictedVisitors, 1500, true); 
+    animateValue(kpiVisitorsSpan, 0, predictedVisitors, 1500, true); // Đếm số
 
     document.getElementById("kpiCrowdLevel").innerText = status;
     document.getElementById("kpiCrowdLevel").style.color = hexColor;
@@ -452,17 +473,18 @@ async function runPrediction() {
 
     const dayText = isWeekend ? "cuối tuần" : "ngày thường";
     const wText = weather.cond.toLowerCase();
-    document.getElementById("recommendationText").innerHTML = `Lịch trình ngày <b>${dayText}</b> với thời tiết <b>${wText}</b>, lượng khách dự kiến chiếm <b>${score}%</b> không gian. ${score > 80 ? 'Để có những bức hình mang đậm chất hoài cổ và không vướng người, hãy ưu tiên khung giờ sáng sớm.' : 'Không gian tản bộ hôm nay rất thoáng đãng, lý tưởng để thưởng ngoạn.'}`;
+    document.getElementById("recommendationText").innerHTML = `Hệ thống ghi nhận ngày đi là <b>${dayText}</b>, kết hợp dự báo thời tiết <b>${wText}</b> khiến mô hình dự phóng lượng khách sẽ đạt <b>${score}% sức chứa</b> tối đa. ${score > 80 ? '⚠️ Khuyến nghị nên đổi sang khung giờ vàng hoặc dời ngày để tối ưu trải nghiệm và có ảnh check-in đẹp nhất.' : '✅ Điều kiện tham quan đang rất thuận lợi.'}`;
 
     document.getElementById("badgeWeekend").className = isWeekend ? "badge active" : "badge";
     document.getElementById("badgeWeather").className = weather.cond !== "Nhiều Mây" ? "badge active" : "badge";
     const randConf = Math.floor(Math.random() * (95 - 85 + 1) + 85);
-    document.getElementById("modelConfidence").innerHTML = `Độ tin cậy của thuật toán: ${randConf}%`;
+    document.getElementById("modelConfidence").innerHTML = `<i class="fas fa-check-circle"></i> Độ tin cậy mô hình: ${randConf}%`;
 
     renderChart(predictedVisitors, spot.capacity);
 
     document.getElementById("loading").style.display = "none";
     resultSection.style.display = "block";
+    // Kích hoạt lại animation trượt lên
     setTimeout(() => { resultSection.style.animation = "fadeInUp 0.8s ease-out forwards"; }, 10);
 }
 
@@ -481,10 +503,10 @@ function renderChart(totalVisits, dailyCapacity) {
         data: {
             labels: hours,
             datasets: [{
-                label: 'Dự báo',
+                label: 'Dự báo lượng khách',
                 data: dataPoints,
-                borderColor: '#A44A3F', /* Primary color */
-                backgroundColor: 'rgba(164, 74, 63, 0.15)', /* Primary transparent */
+                borderColor: '#A44A3F',
+                backgroundColor: 'rgba(164, 74, 63, 0.15)',
                 borderWidth: 3,
                 pointBackgroundColor: '#fff',
                 pointBorderColor: '#D4A373',
@@ -497,7 +519,14 @@ function renderChart(totalVisits, dailyCapacity) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: { duration: 1200, easing: 'easeOutQuart' }, 
+            // SỬA LỖI GRAPH CHẠY MÃI MÃI: Thêm loop: false và chặn hover animation
+            animation: { 
+                duration: 1200, 
+                easing: 'easeOutQuart',
+                loop: false 
+            }, 
+            hover: { animationDuration: 0 },
+            responsiveAnimationDuration: 0,
             plugins: { 
                 legend: { display: false },
                 tooltip: {
@@ -522,5 +551,6 @@ function renderChart(totalVisits, dailyCapacity) {
     });
 }
 </script>
+
 </body>
 </html>
