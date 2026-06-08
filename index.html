@@ -404,19 +404,24 @@ async function runPrediction() {
     const randConf = Math.floor(Math.random() * (95 - 85 + 1) + 85);
     document.getElementById("modelConfidence").innerHTML = `<i class="fas fa-check-circle"></i> Model Confidence: ${randConf}%`;
 
-    renderChart(predictedVisitors);
+    // Gọi hàm renderChart kèm theo sức chứa tối đa của điểm đó
+    renderChart(predictedVisitors, spot.capacity);
 
     document.getElementById("loading").style.display = "none";
     document.getElementById("resultSection").style.display = "block";
 }
 
-function renderChart(totalVisits) {
+// Hàm renderChart đã sửa để chống đơ web
+function renderChart(totalVisits, dailyCapacity) {
     const ctx = document.getElementById('visitorChart').getContext('2d');
     if(myChart) myChart.destroy(); 
 
     const distribution = [0.02, 0.05, 0.1, 0.18, 0.2, 0.15, 0.1, 0.08, 0.07, 0.05]; 
     const hours = ['07:00', '08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     const dataPoints = distribution.map(pct => Math.round(totalVisits * pct));
+
+    // Ép giới hạn chiều cao trục Y để tránh re-render liên tục gây đơ
+    const maxYScale = Math.round(dailyCapacity * 0.25);
 
     myChart = new Chart(ctx, {
         type: 'line',
@@ -437,10 +442,21 @@ function renderChart(totalVisits) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 800 // Tắt animation lặp vô tận
+            },
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                y: { 
+                    beginAtZero: true, 
+                    max: maxYScale, // Chốt cứng tỷ lệ Y
+                    grid: { color: 'rgba(255,255,255,0.05)' }, 
+                    ticks: { color: '#94a3b8' } 
+                },
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: '#94a3b8' } 
+                }
             }
         }
     });
