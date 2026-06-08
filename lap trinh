@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vietnam Tourist Crowd Predictor</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+    color:white;
+}
+
+.container{
+    width:900px;
+    max-width:100%;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border-radius:25px;
+    padding:40px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.3);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    opacity:.8;
+    margin-bottom:35px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+}
+
+select,input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+}
+
+.predict-btn{
+    margin-top:30px;
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#38bdf8;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.predict-btn:hover{
+    transform:translateY(-2px);
+}
+
+.result{
+    margin-top:35px;
+    display:none;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+}
+
+.card h2{
+    margin-bottom:10px;
+}
+
+.big-number{
+    font-size:26px;
+    font-weight:bold;
+}
+
+@media(max-width:768px){
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🇻🇳 Vietnam Tourist Crowd Predictor</h1>
+
+<p class="subtitle">
+Predict visitor volume and crowd level for popular destinations in Vietnam
+</p>
+
+<div class="form-grid">
+
+<div>
+<label>Destination</label>
+<select id="destination">
+<option value="danang">Da Nang</option>
+<option value="hanoi">Ha Noi</option>
+<option value="hcm">Ho Chi Minh City</option>
+<option value="hoian">Hoi An</option>
+<option value="nhatrang">Nha Trang</option>
+<option value="phuquoc">Phu Quoc</option>
+<option value="sapa">Sa Pa</option>
+<option value="halong">Ha Long</option>
+</select>
+</div>
+
+<div>
+<label>Date</label>
+<input type="date" id="date">
+</div>
+
+<div>
+<label>Temperature (°C)</label>
+<input type="number" id="temp" value="30">
+</div>
+
+<div>
+<label>Weather Condition</label>
+<select id="weather">
+<option value="sunny">Sunny</option>
+<option value="cloudy">Cloudy</option>
+<option value="rainy">Rainy</option>
+</select>
+</div>
+
+</div>
+
+<button class="predict-btn" onclick="predictCrowd()">
+Predict Crowd Level
+</button>
+
+<div class="result" id="result">
+
+<div class="cards">
+
+<div class="card">
+<h2>Visitors</h2>
+<div class="big-number" id="visitors"></div>
+</div>
+
+<div class="card">
+<h2>Crowd Level</h2>
+<div class="big-number" id="crowd"></div>
+</div>
+
+<div class="card">
+<h2>Waiting Time</h2>
+<div class="big-number" id="wait"></div>
+</div>
+
+<div class="card">
+<h2>Best Time</h2>
+<div class="big-number" id="besttime"></div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function predictCrowd(){
+
+    const city = document.getElementById("destination").value;
+    const temp = parseInt(document.getElementById("temp").value);
+    const weather = document.getElementById("weather").value;
+    const dateInput = document.getElementById("date").value;
+
+    if(!dateInput){
+        alert("Please select a date");
+        return;
+    }
+
+    let baseVisitors = {
+        danang:12000,
+        hanoi:18000,
+        hcm:22000,
+        hoian:10000,
+        nhatrang:14000,
+        phuquoc:9000,
+        sapa:8000,
+        halong:11000
+    };
+
+    let visitors = baseVisitors[city];
+
+    let selectedDate = new Date(dateInput);
+    let day = selectedDate.getDay();
+
+    let weekend = (day === 0 || day === 6);
+
+    if(weekend){
+        visitors *= 1.35;
+    }
+
+    if(temp >= 25 && temp <= 32){
+        visitors *= 1.1;
+    }
+
+    if(weather === "cloudy"){
+        visitors *= 0.95;
+    }
+
+    if(weather === "rainy"){
+        visitors *= 0.7;
+    }
+
+    visitors = Math.round(visitors);
+
+    let crowdLevel;
+    let waitTime;
+    let bestTime;
+
+    if(visitors < 10000){
+        crowdLevel = "Low";
+        waitTime = "5 mins";
+        bestTime = "10 AM";
+    }
+    else if(visitors < 18000){
+        crowdLevel = "Medium";
+        waitTime = "20 mins";
+        bestTime = "8 AM";
+    }
+    else{
+        crowdLevel = "High";
+        waitTime = "45 mins";
+        bestTime = "7 AM";
+    }
+
+    document.getElementById("visitors").innerHTML =
+    visitors.toLocaleString();
+
+    document.getElementById("crowd").innerHTML =
+    crowdLevel;
+
+    document.getElementById("wait").innerHTML =
+    waitTime;
+
+    document.getElementById("besttime").innerHTML =
+    bestTime;
+
+    document.getElementById("result").style.display =
+    "block";
+}
+
+</script>
+
+</body>
+</html>
