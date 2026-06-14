@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
-/* ... GIỮ NGUYÊN TOÀN BỘ CSS CSS ĐÔNG DƯƠNG ... */
 :root {
     --primary: #A44A3F;
     --secondary: #D4A373;
@@ -237,8 +236,7 @@ h1, h2, h3, .value, .crowd-score, .btn-predict { font-family: 'Playfair Display'
 
 <script>
 // ==========================================
-// 1. DATA CƠ SỞ (GIẢ LẬP KẾT NỐI DATABASE)
-// Để trình bày với thầy: "Bọn em tổ chức data dưới dạng JSON Object, giả lập việc fetch từ Database thông qua REST API"
+// 1. DATA CƠ SỞ ĐẦY ĐỦ 34 TỈNH THÀNH
 // ==========================================
 const locationDatabase = {
     "hanoi": { name: "Hà Nội", spots: { "langbac": { name: "Lăng Chủ tịch", baseVisits: 15000, capacity: 20000 }, "vanmieu": { name: "Văn Miếu Quốc Tử Giám", baseVisits: 8000, capacity: 12000 }, "hoguom": { name: "Phố đi bộ Hồ Gươm", baseVisits: 25000, capacity: 40000 } } },
@@ -278,7 +276,6 @@ const locationDatabase = {
 };
 
 async function fetchTouristData() {
-    // Hàm mô phỏng độ trễ khi lấy dữ liệu qua mạng
     return new Promise(resolve => setTimeout(() => resolve(locationDatabase), 300));
 }
 
@@ -286,7 +283,6 @@ async function fetchTouristData() {
 // 2. GỌI API THỜI TIẾT THỰC TẾ (OPENWEATHERMAP)
 // ==========================================
 async function fetchRealWeather(provinceName) {
-    // Để thầy thấy nhóm dùng API chuẩn. Nếu có API Key thật, thay vào chữ 'YOUR_API_KEY_HERE'
     const API_KEY = 'YOUR_API_KEY_HERE'; 
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${provinceName},VN&units=metric&appid=${API_KEY}&lang=vi`;
 
@@ -306,7 +302,6 @@ async function fetchRealWeather(provinceName) {
         };
     } catch (error) {
         console.warn("Dùng dữ liệu thời tiết fallback do không có API Key hoặc rớt mạng:", error);
-        // Fallback kịch bản thời tiết để web luôn chạy tốt khi demo
         const conds = ["Trời nắng", "Nhiều mây", "Mưa rào nhẹ"];
         const randCond = conds[Math.floor(Math.random()*conds.length)];
         return { temp: 28, cond: randCond, wind: 12, humid: 75, isRealData: false };
@@ -315,20 +310,14 @@ async function fetchRealWeather(provinceName) {
 
 // ==========================================
 // 3. THUẬT TOÁN HÀNG ĐỢI (TÍNH THỜI GIAN CHỜ)
-// Áp dụng định luật Little biến thiên theo tỷ lệ lấp đầy
 // ==========================================
 function calculateWaitTime(utilizationScore) {
-    // Dưới 50%: Chờ tự nhiên (Di chuyển, soi vé cơ bản)
     if (utilizationScore <= 50) {
         return "5 - 10 phút";
-    } 
-    // Từ 50% - 80%: Xếp hàng tuyến tính
-    else if (utilizationScore <= 80) {
+    } else if (utilizationScore <= 80) {
         const wait = Math.floor(10 + ((utilizationScore - 50) * 0.6));
         return `${wait} - ${wait + 10} phút`;
-    } 
-    // Trên 80%: Nghẽn cổ chai (Bottleneck) - Hàm mũ
-    else {
+    } else {
         const overLoad = utilizationScore - 80;
         const exponentialWait = Math.floor(30 + Math.pow(overLoad, 1.2));
         return `${exponentialWait} - ${exponentialWait + 20}+ phút`;
@@ -387,16 +376,10 @@ async function runPrediction() {
     resultSection.style.display = "none";
     resultSection.style.animation = "none";
 
-    // 1. Fetch dữ liệu cơ sở từ "DB"
     const spot = locationDataCache[pKey].spots[dKey];
-    
-    // 2. Fetch Thời tiết qua API
     const weather = await fetchRealWeather(locationDataCache[pKey].name);
-    
-    // 3. Xử lý logic Ngày đi (Cuối tuần vs Ngày thường)
     const isWeekend = [0,6].includes(new Date(dateStr).getDay());
 
-    // 4. Áp dụng Mô hình hệ số (Multiplier Model)
     let predictedVisitors = spot.baseVisits;
     if(isWeekend) predictedVisitors *= 1.4;
     
@@ -405,11 +388,9 @@ async function runPrediction() {
     if(wTextLowerCase.includes("mưa")) predictedVisitors *= 0.6;
     predictedVisitors = Math.round(predictedVisitors);
 
-    // 5. Chấm điểm rủi ro quá tải (%)
     let score = Math.round((predictedVisitors / spot.capacity) * 100);
     if(score > 100) score = 100;
 
-    // 6. Xử lý đầu ra (Trạng thái & Thời gian chờ từ Queuing Theory)
     let status, hexColor;
     if(score <= 50) {
         status = "VẮNG KHÁCH"; hexColor = "var(--low-color)";
@@ -421,7 +402,6 @@ async function runPrediction() {
 
     const waitTimeString = calculateWaitTime(score);
 
-    // 7. Update UI Text & Numbers
     const heroScoreSpan = document.getElementById("heroScore");
     heroScoreSpan.style.color = hexColor;
     animateValue(heroScoreSpan, 0, score, 1500, false);
@@ -441,11 +421,9 @@ async function runPrediction() {
     
     document.getElementById("kpiWait").innerText = waitTimeString;
 
-    // Phân tích giờ vàng từ Distribution Array
     const distribution = [0.02, 0.05, 0.1, 0.18, 0.2, 0.15, 0.1, 0.08, 0.07, 0.05]; 
     const hours = ['07:00', '08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     
-    // Tìm index có lượng khách thấp nhất trong ngày (để xuất Giờ Vàng)
     let minIndex = 0;
     for(let i = 1; i < distribution.length; i++) {
         if(distribution[i] < distribution[minIndex]) minIndex = i;
@@ -453,7 +431,6 @@ async function runPrediction() {
     document.getElementById("kpiBest").innerText = hours[minIndex];
     document.getElementById("kpiBestSub").innerText = score > 80 ? "Né đỉnh đám đông" : "Gợi ý lý tưởng nhất";
 
-    // Cập nhật thông số thời tiết
     document.getElementById("wTemp").innerText = weather.temp + "°C";
     document.getElementById("wCond").innerText = weather.cond;
     document.getElementById("wHumid").innerText = weather.humid + "%";
@@ -475,7 +452,7 @@ async function runPrediction() {
     renderChart(predictedVisitors, spot.capacity, distribution, hours);
 
     document.getElementById("loading").style.display = "none";
-    const resultSection.style.display = "block";
+    resultSection.style.display = "block";
     setTimeout(() => { resultSection.style.animation = "fadeInUp 0.8s ease-out forwards"; }, 10);
 }
 
