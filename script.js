@@ -1,4 +1,3 @@
-// --- FULL 34 TỈNH/THÀNH VÀ SỨC CHỨA ---
 const locationData = {
     "hanoi": { name: "Hà Nội", spots: { "langbac": { name: "Lăng Chủ tịch", baseVisits: 15000, capacity: 20000 }, "vanmieu": { name: "Văn Miếu Quốc Tử Giám", baseVisits: 8000, capacity: 12000 }, "hoguom": { name: "Phố đi bộ Hồ Gươm", baseVisits: 25000, capacity: 40000 } } },
     "haiphong": { name: "Hải Phòng", spots: { "catba": { name: "Đảo Cát Bà", baseVisits: 12000, capacity: 18000 }, "doson": { name: "Biển Đồ Sơn", baseVisits: 8000, capacity: 15000 }, "lanha": { name: "Vịnh Lan Hạ", baseVisits: 9000, capacity: 12000 } } },
@@ -56,6 +55,7 @@ function initProvinces() {
         provinceSelect.add(new Option(locationData[key].name, key));
     }
 }
+
 function updateDestinations() {
     const pKey = document.getElementById("province").value;
     const dSelect = document.getElementById("destination");
@@ -113,16 +113,16 @@ async function runPrediction() {
     let score = Math.round((predictedVisitors / spot.capacity) * 100);
     if(score > 100) score = 100;
 
-    let status, hexColor, wait, bestTime, bestSub;
+    let status, hexColor, bestTime, bestSub;
     if(score <= 50) {
         status = "VẮNG KHÁCH"; hexColor = "var(--low-color)";
-        wait = "5 - 10 phút"; bestTime = "Đi giờ nào cũng đẹp"; bestSub = "Mật độ thấp cả ngày";
+        bestTime = "Đi giờ nào cũng đẹp"; bestSub = "Mật độ thấp cả ngày";
     } else if(score <= 80) {
         status = "TRUNG BÌNH"; hexColor = "var(--medium-color)";
-        wait = "20 - 30 phút"; bestTime = "07:00 - 09:00"; bestSub = "Giảm 35% lượng khách";
+        bestTime = "07:00 - 09:00"; bestSub = "Giảm 35% lượng khách";
     } else {
         status = "QUÁ TẢI"; hexColor = "var(--high-color)";
-        wait = "45 - 60+ phút"; bestTime = "06:00 - 07:30"; bestSub = "Giảm 60% lượng khách";
+        bestTime = "06:00 - 07:30"; bestSub = "Giảm 60% lượng khách";
     }
 
     const heroScoreSpan = document.getElementById("heroScore");
@@ -143,7 +143,6 @@ async function runPrediction() {
     const kpiCrowdCard = document.getElementById("kpiCrowdCard");
     kpiCrowdCard.style.borderTopColor = hexColor;
     
-    document.getElementById("kpiWait").innerText = wait;
     document.getElementById("kpiBest").innerText = bestTime;
     document.getElementById("kpiBestSub").innerText = bestSub;
 
