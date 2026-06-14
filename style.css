@@ -1,5 +1,4 @@
 :root {
-    /* Màu Indochine */
     --primary: #A44A3F;
     --secondary: #D4A373;
     --bg-color: #F5E6CC;
@@ -7,8 +6,6 @@
     --text-muted: #6b5a5a;
     --panel-bg: rgba(255, 250, 240, 0.92);
     --border-color: rgba(164, 74, 63, 0.15);
-    
-    /* Màu trạng thái */
     --low-color: #3e7b5b; 
     --medium-color: #D4A373; 
     --high-color: #A44A3F; 
@@ -32,7 +29,6 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
     font-family: 'Playfair Display', serif;
 }
 
-/* --- HERO BANNER --- */
 .hero-section {
     position: relative;
     width: 100%;
@@ -103,7 +99,6 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
     animation: fadeInUpFade 0.8s ease-out forwards;
 }
 
-/* Form nhập liệu */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
 .form-group label { 
     display: block; margin-bottom: 8px; font-size: 17px; 
@@ -141,13 +136,11 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 .stagger-3 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.3s; }
 .stagger-4 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.4s; }
 
-/* 1. Hero KPI */
 .hero-kpi { text-align: center; padding: 10px 0 30px; border-bottom: 1px dashed var(--border-color); margin-bottom: 30px; }
 .crowd-score { font-size: 80px; font-weight: 700; line-height: 1; margin-bottom: 15px; transition: color 0.5s; letter-spacing: -1px;}
 .score-suffix { font-size: 28px; color: var(--text-muted); font-family: 'Cormorant Garamond', serif; font-weight: 600; font-style: italic;}
 .crowd-label { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 30px; border-radius: 40px; display: inline-block;}
 
-/* 7. Recommendation Box */
 .rec-box {
     background: rgba(212, 163, 115, 0.1); border-left: 4px solid var(--secondary); padding: 22px;
     border-radius: 12px; margin-bottom: 30px; display: flex; gap: 18px; align-items: flex-start;
@@ -157,8 +150,8 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 .rec-box i { font-size: 28px; color: var(--primary); margin-top: 2px; }
 .rec-box p, .rec-box span { font-size: 19px; line-height: 1.6; color: var(--dark); font-weight: 500;}
 
-/* 8. KPI Cards */
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 35px; }
+/* Đã sửa thành 3 cột */
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 35px; }
 .kpi-card { 
     background: #fff; padding: 25px 20px; border-radius: 16px; 
     border: 1px solid var(--border-color); 
@@ -178,7 +171,6 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 .kpi-card .value { font-size: 32px; font-weight: 700; color: var(--primary); margin-bottom: 5px;}
 .kpi-card .sub-text { font-size: 16px; color: var(--text-muted); font-weight: 600; font-style: italic;}
 
-/* Chart & Weather Section */
 .data-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
 .chart-container, .weather-container { 
     background: #fff; border-radius: 16px; padding: 25px; 
@@ -189,7 +181,6 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 .section-title { font-size: 22px; font-weight: 700; margin-bottom: 25px; color: var(--dark); display: flex; align-items: center; gap: 10px;}
 .section-title i { color: var(--primary); font-size: 22px;}
 
-/* Weather Cards */
 .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .w-card { 
     background: var(--bg-color); padding: 18px 10px; 
@@ -201,7 +192,6 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 .w-card .w-val { font-size: 24px; font-weight: 700; color: var(--dark); margin-bottom: 2px;}
 .w-card .w-lbl { font-size: 15px; color: var(--text-muted); font-weight: 600; font-style: italic;}
 
-/* Factors & Confidence */
 .footer-info { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 25px; flex-wrap: wrap; gap: 15px; }
 .factors { display: flex; gap: 10px; flex-wrap: wrap; }
 .badge { background: #fff; border: 1px solid var(--border-color); padding: 6px 18px; border-radius: 25px; font-size: 16px; font-weight: 600; color: var(--text-muted); transition: all 0.3s;}
