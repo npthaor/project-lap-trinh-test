@@ -8,11 +8,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- Đã lấy lại font cũ nhưng thêm các dải weight (500, 600, 700) để nét chữ rõ và dễ đọc hơn -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
 <style>
 :root {
-    /* Màu Indochine theo yêu cầu */
+    /* Màu Indochine */
     --primary: #A44A3F;
     --secondary: #D4A373;
     --bg-color: #F5E6CC;
@@ -33,15 +34,16 @@ body {
     background-color: var(--bg-color);
     background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     color: var(--dark);
-    font-family: 'Inter', sans-serif; /* Font body dễ đọc */
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; /* Tăng size nền để dễ đọc */
+    line-height: 1.6;
+    font-weight: 500; /* Nét mập hơn chút */
     min-height: 100vh;
     padding-bottom: 40px;
-    line-height: 1.5;
 }
 
-/* Áp dụng font Montserrat cho các điểm nhấn */
-h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w-val {
-    font-family: 'Montserrat', sans-serif;
+h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w-val, .kpi-card h3 {
+    font-family: 'Playfair Display', serif;
 }
 
 /* --- HERO BANNER --- */
@@ -73,7 +75,7 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 
 .hero-section h1 {
     font-size: 46px;
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: 12px;
     color: var(--bg-color);
     letter-spacing: 2px;
@@ -83,8 +85,9 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 }
 
 .hero-section p {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 500;
+    font-style: italic;
     color: var(--secondary);
     z-index: 1;
     letter-spacing: 0.5px;
@@ -98,138 +101,128 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
     padding: 0 15px;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(40px); }
+/* Hiệu ứng thanh lịch, chậm rãi */
+@keyframes fadeInUpFade {
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0 rgba(164, 74, 63, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(164, 74, 63, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(164, 74, 63, 0); }
 }
 
 .glass-panel {
     background: var(--panel-bg);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 24px;
+    border-radius: 20px;
     padding: 35px;
-    box-shadow: 0 20px 50px rgba(59, 47, 47, 0.1);
+    box-shadow: 0 15px 45px rgba(59, 47, 47, 0.08);
     margin-bottom: 25px;
-    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeInUpFade 0.8s ease-out forwards;
 }
 
 /* Form nhập liệu */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
 .form-group label { 
-    display: block; margin-bottom: 10px; font-size: 14px; 
+    display: block; margin-bottom: 8px; font-size: 17px; 
     color: var(--primary); font-weight: 700; text-transform: uppercase; 
-    letter-spacing: 1px;
+    letter-spacing: 1px; font-family: 'Playfair Display', serif;
 }
 .form-group select, .form-group input {
-    width: 100%; padding: 15px 18px; border-radius: 14px; border: 2px solid var(--border-color);
-    background: #fff; color: var(--dark); font-size: 16px; outline: none; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
+    width: 100%; padding: 15px 18px; border-radius: 12px; border: 1px solid var(--border-color);
+    background: #fff; color: var(--dark); font-size: 18px; outline: none; 
+    transition: all 0.3s ease;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
 }
 .form-group select:focus, .form-group input:focus { 
     border-color: var(--primary); 
-    box-shadow: 0 0 0 4px rgba(164, 74, 63, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px rgba(164, 74, 63, 0.15);
 }
 
 .btn-predict {
-    width: 100%; padding: 18px; margin-top: 30px; border-radius: 14px; border: none;
-    background: var(--primary); color: var(--bg-color); font-size: 18px; font-weight: 700; 
+    width: 100%; padding: 18px; margin-top: 30px; border-radius: 12px; border: none;
+    background: var(--primary); color: var(--bg-color); font-size: 20px; font-weight: 700; 
     text-transform: uppercase; letter-spacing: 1.5px;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer; transition: all 0.4s ease;
 }
 .btn-predict:hover { 
     background: #8A3E35; 
-    transform: translateY(-4px); 
-    box-shadow: 0 12px 25px rgba(164, 74, 63, 0.35); 
-    animation: pulseGlow 1.5s infinite;
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(164, 74, 63, 0.25); 
 }
 
-#resultSection { display: none; opacity: 0; animation: none; border-top: 6px solid var(--primary); }
+#resultSection { display: none; opacity: 0; animation: none; border-top: 5px solid var(--primary); }
 
-/* Bọc các class con trong resultSection để làm hiệu ứng xuất hiện lần lượt */
-.stagger-1 { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.1s; }
-.stagger-2 { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.2s; }
-.stagger-3 { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.3s; }
-.stagger-4 { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 0.4s; }
+.stagger-1 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.1s; }
+.stagger-2 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.2s; }
+.stagger-3 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.3s; }
+.stagger-4 { animation: fadeInUpFade 0.7s ease-out backwards; animation-delay: 0.4s; }
 
 /* 1. Hero KPI */
-.hero-kpi { text-align: center; padding: 20px 0 35px; border-bottom: 1px dashed var(--border-color); margin-bottom: 30px; }
-.crowd-score { font-size: 80px; font-weight: 800; line-height: 1; margin-bottom: 15px; transition: color 0.5s; letter-spacing: -2px;}
-.score-suffix { font-size: 24px; color: var(--text-muted); font-family: 'Inter', sans-serif; font-weight: 500; letter-spacing: 0;}
-.crowd-label { font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 28px; border-radius: 40px; display: inline-block;}
+.hero-kpi { text-align: center; padding: 10px 0 30px; border-bottom: 1px dashed var(--border-color); margin-bottom: 30px; }
+.crowd-score { font-size: 80px; font-weight: 700; line-height: 1; margin-bottom: 15px; transition: color 0.5s; letter-spacing: -1px;}
+.score-suffix { font-size: 28px; color: var(--text-muted); font-family: 'Cormorant Garamond', serif; font-weight: 600; font-style: italic;}
+.crowd-label { font-size: 18px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 30px; border-radius: 40px; display: inline-block;}
 
 /* 7. Recommendation Box */
 .rec-box {
-    background: rgba(212, 163, 115, 0.15); border-left: 5px solid var(--secondary); padding: 22px;
-    border-radius: 14px; margin-bottom: 30px; display: flex; gap: 18px; align-items: flex-start;
-    transition: transform 0.3s ease;
+    background: rgba(212, 163, 115, 0.1); border-left: 4px solid var(--secondary); padding: 22px;
+    border-radius: 12px; margin-bottom: 30px; display: flex; gap: 18px; align-items: flex-start;
+    transition: all 0.3s ease;
 }
-.rec-box:hover { transform: translateX(5px); }
+.rec-box:hover { background: rgba(212, 163, 115, 0.15); }
 .rec-box i { font-size: 28px; color: var(--primary); margin-top: 2px; }
-.rec-box p, .rec-box span { font-size: 16px; line-height: 1.7; color: var(--dark); font-weight: 500;}
+.rec-box p, .rec-box span { font-size: 19px; line-height: 1.6; color: var(--dark); font-weight: 500;}
 
 /* 8. KPI Cards */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 35px; }
 .kpi-card { 
-    background: #fff; padding: 28px 22px; border-radius: 18px; 
+    background: #fff; padding: 25px 20px; border-radius: 16px; 
     border: 1px solid var(--border-color); 
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy bouncy */
+    transition: all 0.4s ease; /* Đổi mượt mà không bị nảy */
     position: relative; overflow: hidden;
 }
-.kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--secondary); transition: height 0.3s;}
+.kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--secondary); transition: height 0.3s;}
 .kpi-card:nth-child(1)::after { background: var(--primary); }
 .kpi-card:nth-child(3)::after { background: var(--text-muted); }
 
 .kpi-card:hover { 
-    transform: translateY(-8px) scale(1.02); 
-    box-shadow: 0 15px 35px rgba(59, 47, 47, 0.12); 
+    transform: translateY(-6px); 
+    box-shadow: 0 12px 30px rgba(59, 47, 47, 0.1); 
 }
-.kpi-card:hover::after { height: 8px; }
-.kpi-card h3 { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; font-family: 'Inter', sans-serif;}
-.kpi-card h3 i { color: var(--secondary); margin-right: 8px; font-size: 16px;}
-.kpi-card .value { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px; letter-spacing: -1px;}
-.kpi-card .sub-text { font-size: 14px; color: var(--text-muted); font-weight: 500;}
+.kpi-card h3 { font-size: 15px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;}
+.kpi-card h3 i { color: var(--secondary); margin-right: 6px; font-size: 16px;}
+.kpi-card .value { font-size: 32px; font-weight: 700; color: var(--primary); margin-bottom: 5px;}
+.kpi-card .sub-text { font-size: 16px; color: var(--text-muted); font-weight: 600; font-style: italic;}
 
 /* Chart & Weather Section */
 .data-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
 .chart-container, .weather-container { 
-    background: #fff; border-radius: 20px; padding: 28px; 
+    background: #fff; border-radius: 16px; padding: 25px; 
     border: 1px solid var(--border-color);
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.4s ease;
 }
-.chart-container:hover, .weather-container:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-.section-title { font-size: 18px; font-weight: 700; margin-bottom: 25px; color: var(--dark); display: flex; align-items: center; gap: 12px; text-transform: uppercase; letter-spacing: 0.5px;}
+.chart-container:hover, .weather-container:hover { box-shadow: 0 8px 25px rgba(59, 47, 47, 0.08); }
+.section-title { font-size: 22px; font-weight: 700; margin-bottom: 25px; color: var(--dark); display: flex; align-items: center; gap: 10px;}
 .section-title i { color: var(--primary); font-size: 22px;}
 
 /* Weather Cards */
-.weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .w-card { 
-    background: rgba(245, 230, 204, 0.3); padding: 20px 10px; 
-    border-radius: 16px; text-align: center; border: 1px solid rgba(164, 74, 63, 0.08);
+    background: var(--bg-color); padding: 18px 10px; 
+    border-radius: 12px; text-align: center; border: 1px solid rgba(164, 74, 63, 0.05);
     transition: transform 0.3s ease;
 }
-.w-card:hover { transform: translateY(-5px); background: #fff;}
-.w-card i { font-size: 28px; margin-bottom: 12px; color: var(--secondary); }
-.w-card .w-val { font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 4px;}
-.w-card .w-lbl { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;}
+.w-card:hover { transform: translateY(-4px); }
+.w-card i { font-size: 26px; margin-bottom: 10px; color: var(--secondary); }
+.w-card .w-val { font-size: 24px; font-weight: 700; color: var(--dark); margin-bottom: 2px;}
+.w-card .w-lbl { font-size: 15px; color: var(--text-muted); font-weight: 600; font-style: italic;}
 
 /* Factors & Confidence */
 .footer-info { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 25px; flex-wrap: wrap; gap: 15px; }
-.factors { display: flex; gap: 12px; flex-wrap: wrap; }
-.badge { background: #fff; border: 1px solid var(--border-color); padding: 8px 18px; border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.3s;}
+.factors { display: flex; gap: 10px; flex-wrap: wrap; }
+.badge { background: #fff; border: 1px solid var(--border-color); padding: 6px 18px; border-radius: 25px; font-size: 16px; font-weight: 600; color: var(--text-muted); transition: all 0.3s;}
 .badge i { margin-right: 6px; color: var(--secondary); }
-.badge.active { background: rgba(164, 74, 63, 0.08); color: var(--primary); border-color: var(--primary); transform: translateY(-2px);}
-.confidence { font-size: 15px; font-weight: 600; color: var(--primary); background: rgba(164, 74, 63, 0.08); padding: 10px 22px; border-radius: 30px;}
+.badge.active { background: rgba(164, 74, 63, 0.05); color: var(--primary); border-color: var(--primary); }
+.confidence { font-size: 17px; font-weight: 700; color: var(--primary); background: rgba(164, 74, 63, 0.08); padding: 8px 22px; border-radius: 25px; font-style: italic;}
 
 @media (max-width: 900px) {
     .data-grid { grid-template-columns: 1fr; }
@@ -237,7 +230,7 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 
 @media (max-width: 768px) {
     .form-grid, .kpi-grid { grid-template-columns: 1fr; }
-    .hero-section h1 { font-size: 32px; }
+    .hero-section h1 { font-size: 36px; }
 }
 </style>
 </head>
@@ -273,7 +266,7 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
 
     <div id="loading" style="display:none; text-align:center; color: var(--primary); padding: 40px;">
         <i class="fas fa-circle-notch fa-spin fa-3x"></i>
-        <p style="margin-top: 20px; font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;">Đang thu thập dữ liệu API & Phân tích đa biến...</p>
+        <p style="margin-top: 20px; font-size: 20px; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic;">Đang thu thập dữ liệu API & Phân tích đa biến...</p>
     </div>
 
     <div class="glass-panel" id="resultSection">
@@ -286,8 +279,8 @@ h1, h2, h3, .value, .crowd-score, .btn-predict, .section-title, .crowd-label, .w
         <div class="rec-box stagger-1">
             <i class="fas fa-lightbulb"></i>
             <div>
-                <strong style="color: var(--primary); font-size: 18px; font-family: 'Montserrat', sans-serif;">AI Insights (Khuyến nghị)</strong><br>
-                <span id="recommendationText" style="margin-top: 8px; display: block;">Khuyến nghị sẽ hiển thị tại đây.</span>
+                <strong style="color: var(--primary); font-size: 20px; font-family: 'Playfair Display', serif;">AI Insights (Khuyến nghị)</strong><br>
+                <span id="recommendationText" style="margin-top: 5px; display: block;">Khuyến nghị sẽ hiển thị tại đây.</span>
             </div>
         </div>
 
@@ -403,7 +396,6 @@ const locationData = {
     "camau": { name: "Cà Mau", spots: { "datmui": { name: "Mũi Cà Mau", baseVisits: 8000, capacity: 15000 }, "uminhha": { name: "Rừng U Minh Hạ", baseVisits: 5000, capacity: 9000 }, "honkhoai": { name: "Đảo Hòn Khoai", baseVisits: 3000, capacity: 6000 } } }
 };
 
-// --- HÀM ANIMATION ĐẾM SỐ ---
 function animateValue(obj, start, end, duration, isFormat) {
     let startTimestamp = null;
     const step = (timestamp) => {
@@ -418,7 +410,6 @@ function animateValue(obj, start, end, duration, isFormat) {
     window.requestAnimationFrame(step);
 }
 
-// --- LOGIC GIAO DIỆN VÀ CHẠY MÔ HÌNH ---
 function initProvinces() {
     const provinceSelect = document.getElementById("province");
     for (let key in locationData) {
@@ -460,13 +451,12 @@ async function runPrediction() {
     const dKey = document.getElementById("destination").value;
     const dateStr = document.getElementById("date").value;
 
-    if(!pKey || !dKey || !dateStr) { alert("Vui lòng chọn đầy đủ Địa điểm và Ngày đi nhé!"); return; }
+    if(!pKey || !dKey || !dateStr) { alert("Cậu vui lòng chọn đầy đủ Địa điểm và Ngày đi nhé!"); return; }
 
     document.getElementById("loading").style.display = "block";
     const resultSection = document.getElementById("resultSection");
     resultSection.style.display = "none";
     
-    // Xóa class animation để reset
     const animatedElements = document.querySelectorAll('.stagger-1, .stagger-2, .stagger-3, .stagger-4');
     animatedElements.forEach(el => el.style.animation = 'none');
 
@@ -503,7 +493,7 @@ async function runPrediction() {
     heroLabel.innerText = status;
     heroLabel.style.backgroundColor = "transparent"; 
     heroLabel.style.color = hexColor;
-    heroLabel.style.border = `2px solid ${hexColor}`;
+    heroLabel.style.border = `1px solid ${hexColor}`;
 
     const kpiVisitorsSpan = document.getElementById("kpiVisitors");
     animateValue(kpiVisitorsSpan, 0, predictedVisitors, 1500, true); 
@@ -540,10 +530,9 @@ async function runPrediction() {
     document.getElementById("loading").style.display = "none";
     resultSection.style.display = "block";
     
-    // Kích hoạt lại animation
     setTimeout(() => {
-        resultSection.style.animation = "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards";
-        animatedElements.forEach(el => el.style.animation = ''); // Trigger CSS animations
+        resultSection.style.animation = "fadeInUpFade 0.8s ease-out forwards";
+        animatedElements.forEach(el => el.style.animation = '');
     }, 10);
 }
 
@@ -579,7 +568,7 @@ function renderChart(totalVisits, dailyCapacity) {
             responsive: true,
             maintainAspectRatio: false,
             animation: { 
-                duration: 1200, 
+                duration: 1500, 
                 easing: 'easeOutQuart',
                 loop: false 
             }, 
@@ -589,8 +578,8 @@ function renderChart(totalVisits, dailyCapacity) {
                 legend: { display: false },
                 tooltip: {
                     backgroundColor: '#3B2F2F',
-                    titleFont: { family: 'Inter', size: 14, weight: 'bold' },
-                    bodyFont: { family: 'Inter', size: 14 }
+                    titleFont: { family: 'Cormorant Garamond', size: 16 },
+                    bodyFont: { family: 'Cormorant Garamond', size: 16 }
                 }
             },
             scales: {
@@ -598,11 +587,11 @@ function renderChart(totalVisits, dailyCapacity) {
                     beginAtZero: true, 
                     max: maxYScale, 
                     grid: { color: 'rgba(164, 74, 63, 0.1)' }, 
-                    ticks: { color: '#6b5a5a', font: { family: 'Inter', size: 12 } } 
+                    ticks: { color: '#6b5a5a', font: { family: 'Cormorant Garamond', size: 14, weight: 'bold' } } 
                 },
                 x: { 
                     grid: { display: false }, 
-                    ticks: { color: '#6b5a5a', font: { family: 'Inter', size: 12 } } 
+                    ticks: { color: '#6b5a5a', font: { family: 'Cormorant Garamond', size: 14, weight: 'bold' } } 
                 }
             }
         }
